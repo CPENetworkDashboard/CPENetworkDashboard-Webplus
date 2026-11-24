@@ -11,7 +11,7 @@ import {
 } from '../../scripts/collect-status.mjs'
 const temporary = []
 const noWait = async () => {}
-const origin = 'https://cpe.yuan6.cn'
+const origin = 'https://cpe.plus'
 const observation = () => ({
   at: new Date().toISOString(),
   services: [{ id: 'website', state: 'operational', httpStatus: 200 }],

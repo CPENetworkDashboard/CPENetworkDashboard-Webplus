@@ -7,7 +7,7 @@
 1. 部署本仓库的 `edge/index.js`，保留现有 `/api/*` 路由和 `cpeweb` namespace。
 2. 在 `cpeweb` 的现有 `config` JSON 中增加 `CPE_STATUS_TOKEN`，值为单独生成的长随机令牌。其他字段保持原值。也支持独立 KV key `CPE_STATUS_TOKEN`。该令牌必须单独配置，不复用 `CPE_STATS_TOKEN`。
 3. 在 GitHub 仓库的 Actions secrets 中增加同名 `CPE_STATUS_TOKEN`，值与上一步一致。不要放入前端环境变量或提交到 Git。
-4. 在默认分支启用 `.github/workflows/status-collector.yml`。默认监测地址为 `https://cpe.yuan6.cn`，可通过仓库变量 `CPE_STATUS_ORIGIN` 修改。
+4. 在默认分支启用 `.github/workflows/status-collector.yml`。默认监测地址为 `https://cpe.plus`，可通过仓库变量 `CPE_STATUS_ORIGIN` 修改。
 5. 手动运行一次 **Service availability monitoring**，确认 `GET /api/status/summary?days=30&verify=1` 的 `monitor.runUrl` 对应本次运行。随后验证至少两次 GitHub `schedule` 运行成功，并确认线上摘要的 `monitor.event` 为 `schedule`、最后检查时间持续更新。
 6. 构建并部署 `dist/`。用户即可查看已保存的 30/90 天统计，历史从启用采集时开始积累。
 
@@ -47,7 +47,7 @@ sudo bash scripts/install-status-monitor.sh --enable
 sudo systemctl list-timers --all cpe-status.timer
 sudo systemctl status cpe-status.service cpe-status.timer --no-pager
 sudo journalctl -u cpe-status.service --since '1 hour ago' --no-pager
-curl -fsS 'https://cpe.yuan6.cn/api/status/summary?days=30&verify=1'
+curl -fsS 'https://cpe.plus/api/status/summary?days=30&verify=1'
 ```
 
 切换验收：先在 GitHub 禁用 **Service availability monitoring**，避免两个采集器同时写入；启动服务器服务后，确认连续两轮检查均保存成功、`monitor.source` 为 `external`、`stale` 为 `false`，并核对历史样本增加。再删除 GitHub 工作流中的 `schedule` 并重新启用该工作流，保留手动检查和外部触发入口。若服务器部署失败，重新启用 GitHub 工作流以保留原有能力；已有历史不做清空。

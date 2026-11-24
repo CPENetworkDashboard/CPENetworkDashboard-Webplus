@@ -42,7 +42,7 @@ jobs:
       - name: Wait for ESA and verify production APIs
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         env:
-          CPE_STATUS_ORIGIN: ${{ vars.CPE_STATUS_ORIGIN || 'https://cpe.yuan6.cn' }}
+          CPE_STATUS_ORIGIN: ${{ vars.CPE_STATUS_ORIGIN || 'https://cpe.plus' }}
         run: |
           node scripts/wait-for-deployment.mjs
           node scripts/verify-deployment.mjs --skip-downloads

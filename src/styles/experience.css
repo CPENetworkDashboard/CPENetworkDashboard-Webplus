@@ -894,6 +894,23 @@ section[id] {
   gap: 16px;
   font-variant-numeric: tabular-nums;
 }
+.site-footer-icp {
+  display: flex;
+  justify-content: center;
+  padding-top: 18px;
+}
+.site-footer-icp a {
+  color: var(--muted);
+  font-size: 11px;
+  opacity: 0.75;
+  transition:
+    color 0.2s,
+    opacity 0.2s;
+}
+.site-footer-icp a:hover {
+  color: var(--ink);
+  opacity: 1;
+}
 .page-view:not(.product-experience):not(.status-dashboard) {
   width: min(var(--page-width), calc(100% - 80px));
   padding-top: 145px;

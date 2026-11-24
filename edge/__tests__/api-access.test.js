@@ -3,7 +3,7 @@ import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
 
 const source = readFileSync(resolve('edge/index.js'), 'utf8')
-const origin = 'https://cpe.yuan6.cn'
+const origin = 'https://cpe.plus'
 
 function createEdge(config = {}) {
   const serialized = JSON.stringify(config)

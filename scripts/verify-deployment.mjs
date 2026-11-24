@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
 import { downloads } from '../src/content.ts'
 
-const origin = new URL(process.env.CPE_STATUS_ORIGIN || 'https://cpe.yuan6.cn')
+const origin = new URL(process.env.CPE_STATUS_ORIGIN || 'https://cpe.plus')
 const output = []
 async function get(path, init = {}) {
   for (let attempt = 1; attempt <= 3; attempt += 1) {

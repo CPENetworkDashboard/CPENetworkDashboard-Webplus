@@ -15,7 +15,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'https://cpe.yuan6.cn',
+        target: 'https://cpe.plus',
         changeOrigin: true,
         secure: true,
       },

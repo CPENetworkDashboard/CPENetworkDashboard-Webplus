@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
 
-const origin = 'https://cpe.yuan6.cn'
+const origin = 'https://cpe.plus'
 const source = readFileSync(resolve('edge/index.js'), 'utf8')
 const windowsExeChecksum =
   "checksum: '0808a5a69bf1ac5a16561955f67cc55ac87cfb3c3298b28dbe8e6ab17290addf',"

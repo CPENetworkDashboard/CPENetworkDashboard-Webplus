@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest'
 import { downloads } from '@/content'
 import { platformAdviceMap } from '@/utils/platform'
 
-const origin = 'https://cpe.yuan6.cn'
+const origin = 'https://cpe.plus'
 const edgeSource = readFileSync(resolve('edge/index.js'), 'utf8')
 
 function edgeWithStoredRelease(release) {

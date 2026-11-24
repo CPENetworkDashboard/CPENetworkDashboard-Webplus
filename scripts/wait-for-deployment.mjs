@@ -1,5 +1,5 @@
 import { readFile } from 'node:fs/promises'
-const origin = new URL(process.env.CPE_STATUS_ORIGIN || 'https://cpe.yuan6.cn')
+const origin = new URL(process.env.CPE_STATUS_ORIGIN || 'https://cpe.plus')
 const html = await readFile('dist/index.html', 'utf8')
 const assets = [...html.matchAll(/(?:src|href)="(\/assets\/[^"\s]+)"/g)].map((match) => match[1])
 const source = await readFile('edge/index.js', 'utf8')

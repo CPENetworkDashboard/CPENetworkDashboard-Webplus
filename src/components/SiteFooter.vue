@@ -41,5 +41,10 @@ const { totalDownloads, totalVisits, valueOrPreview } = useAnalytics()
         ><span>下载 {{ valueOrPreview(totalDownloads) }}</span>
       </div>
     </div>
+    <div class="site-footer-icp">
+      <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer"
+        >湘ICP备2024065803号-3</a
+      >
+    </div>
   </footer>
 </template>

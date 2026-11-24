@@ -36,7 +36,7 @@ function loadEdge() {
 }
 async function ingest(data, token = 'monitor-test-token') {
   return edge.fetch(
-    new Request('https://cpe.yuan6.cn/api/status/ingest', {
+    new Request('https://cpe.plus/api/status/ingest', {
       method: 'POST',
       headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
@@ -45,7 +45,7 @@ async function ingest(data, token = 'monitor-test-token') {
 }
 async function ingestBatch(reports, token = 'monitor-test-token') {
   return edge.fetch(
-    new Request('https://cpe.yuan6.cn/api/status/ingest', {
+    new Request('https://cpe.plus/api/status/ingest', {
       method: 'POST',
       headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' },
       body: JSON.stringify({ reports }),
@@ -54,7 +54,7 @@ async function ingestBatch(reports, token = 'monitor-test-token') {
 }
 async function summary(days = 30, query = '') {
   const response = await edge.fetch(
-    new Request('https://cpe.yuan6.cn/api/status/summary?days=' + days + query)
+    new Request('https://cpe.plus/api/status/summary?days=' + days + query)
   )
   expect(response.status).toBe(200)
   return response.json()
@@ -161,7 +161,7 @@ describe('durable status history', () => {
         }
       }
     )
-    const response = await edge.fetch(new Request('https://cpe.yuan6.cn/api/status/summary'))
+    const response = await edge.fetch(new Request('https://cpe.plus/api/status/summary'))
     expect(response.status).toBe(503)
   })
   it('accepts legacy slow observations as available without publishing latency data', async () => {

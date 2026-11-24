@@ -165,7 +165,7 @@ export async function flushStatusQueue(origin, token, path, options = {}) {
 }
 export async function runStatusMonitor(options = {}) {
   const origin = monitorOrigin(
-    options.origin || process.env.CPE_STATUS_ORIGIN || 'https://cpe.yuan6.cn'
+    options.origin || process.env.CPE_STATUS_ORIGIN || 'https://cpe.plus'
   )
   const token = options.token || process.env.CPE_STATUS_TOKEN
   if (!token && !options.dryRun)

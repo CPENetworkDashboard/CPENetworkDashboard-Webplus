@@ -244,16 +244,16 @@ Content-Type: application/json
         {
           "index": 0,
           "href": "/downloads/chunks/android-3.7.1/CPENetworkDashboard V3.7.1.apk.part00",
-          "url": "https://cpe.yuan6.cn/downloads/chunks/android-3.7.1/CPENetworkDashboard%20V3.7.1.apk.part00",
-          "directUrl": "https://cpe.yuan6.cn/downloads/chunks/android-3.7.1/CPENetworkDashboard%20V3.7.1.apk.part00",
+          "url": "https://cpe.plus/downloads/chunks/android-3.7.1/CPENetworkDashboard%20V3.7.1.apk.part00",
+          "directUrl": "https://cpe.plus/downloads/chunks/android-3.7.1/CPENetworkDashboard%20V3.7.1.apk.part00",
           "tracked": false,
           "bytes": 20971520
         },
         {
           "index": 1,
           "href": "/downloads/chunks/android-3.7.1/CPENetworkDashboard V3.7.1.apk.part01",
-          "url": "https://cpe.yuan6.cn/downloads/chunks/android-3.7.1/CPENetworkDashboard%20V3.7.1.apk.part01",
-          "directUrl": "https://cpe.yuan6.cn/downloads/chunks/android-3.7.1/CPENetworkDashboard%20V3.7.1.apk.part01",
+          "url": "https://cpe.plus/downloads/chunks/android-3.7.1/CPENetworkDashboard%20V3.7.1.apk.part01",
+          "directUrl": "https://cpe.plus/downloads/chunks/android-3.7.1/CPENetworkDashboard%20V3.7.1.apk.part01",
           "tracked": false,
           "bytes": 10841841
         }
@@ -262,7 +262,7 @@ Content-Type: application/json
       "size": "30.3 MiB",
       "checksum": "ee0cb8b3ea23ee69d7f2d42f014c089c961c5687c1966ee3fff1ef1bb904bbf5",
       "signature": "",
-      "url": "https://cpe.yuan6.cn/downloads/chunks/android-3.7.1/CPENetworkDashboard%20V3.7.1.apk.part00",
+      "url": "https://cpe.plus/downloads/chunks/android-3.7.1/CPENetworkDashboard%20V3.7.1.apk.part00",
       "directUrl": ""
     },
     "alternatives": []
