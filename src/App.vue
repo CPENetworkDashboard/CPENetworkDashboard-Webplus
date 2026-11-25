@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { RouterView, useRoute } from 'vue-router'
-import { computed, onMounted, ref, watch } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import SiteFooter from '@/components/SiteFooter.vue'
 import SiteHeader from '@/components/SiteHeader.vue'
 import { useAnalytics } from '@/composables/useAnalytics'
@@ -8,7 +8,6 @@ import { useAnalytics } from '@/composables/useAnalytics'
 const route = useRoute()
 const { loadSummary, recordVisit } = useAnalytics()
 
-const pageKey = computed(() => route.fullPath)
 const privacyStorageKey = 'cpe-plus-plus-privacy-notice-v1'
 const privacyNoticeVisible = ref(false)
 const trackingAllowed = ref(false)
@@ -28,15 +27,15 @@ async function maybeRecordVisit(path: string): Promise<void> {
   await refreshPublicStats()
 }
 
-async function acceptPrivacyNotice(): Promise<void> {
+async function saveNotice(allow: boolean): Promise<void> {
   try {
-    localStorage.setItem(privacyStorageKey, 'accepted')
+    localStorage.setItem(privacyStorageKey, allow ? 'accepted' : 'declined')
   } catch {
     /* Consent applies to this session. */
   }
   privacyNoticeVisible.value = false
-  trackingAllowed.value = true
-  await recordVisit(route.path)
+  trackingAllowed.value = allow
+  if (allow) await recordVisit(route.path)
 }
 
 watch(
@@ -49,14 +48,14 @@ watch(
 
 onMounted(async () => {
   document.title = `${String(route.meta.title || 'CPE加加')} / CPE++`
-  let accepted = false
+  let choice: string | null = null
   try {
-    accepted = localStorage.getItem(privacyStorageKey) === 'accepted'
+    choice = localStorage.getItem(privacyStorageKey)
   } catch {
     /* Show the notice. */
   }
-  trackingAllowed.value = accepted
-  privacyNoticeVisible.value = !accepted
+  trackingAllowed.value = choice === 'accepted'
+  privacyNoticeVisible.value = choice !== 'accepted' && choice !== 'declined'
   await maybeRecordVisit(route.path)
 })
 </script>
@@ -66,22 +65,20 @@ onMounted(async () => {
     <a class="skip-link" href="#main-content" @click.prevent="focusMain">跳转到主要内容</a>
     <SiteHeader />
     <main id="main-content" tabindex="-1">
-      <RouterView v-slot="{ Component }">
-        <Transition name="page-fade" mode="out-in">
-          <component :is="Component" :key="pageKey" />
-        </Transition>
-      </RouterView>
+      <RouterView />
     </main>
     <SiteFooter />
-    <div v-if="privacyNoticeVisible" class="privacy-notice" role="status" aria-live="polite">
+    <div v-if="privacyNoticeVisible" class="privacy-notice" role="region" aria-label="访问统计偏好">
       <div>
-        <strong>隐私统计说明</strong>
+        <strong>访问统计</strong>
         <p>
-          官网会统计访问页面、来源、设备/浏览器/系统、粗略地区和安装包下载点击，用于判断版本下载量和站点运行情况；不公开完整
-          IP、原始 User-Agent 或设备登录信息。
+          允许记录访问页面、来源、系统、浏览器和粗略地区，用于了解官网使用情况。安装包下载量单独统计。
         </p>
       </div>
-      <button type="button" @click="acceptPrivacyNotice">知道了</button>
+      <div class="notice-actions">
+        <button type="button" @click="saveNotice(false)">仅浏览</button
+        ><button type="button" @click="saveNotice(true)">允许统计</button>
+      </div>
     </div>
   </div>
 </template>

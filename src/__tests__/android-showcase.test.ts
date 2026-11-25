@@ -1,66 +1,53 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { mount, type VueWrapper } from '@vue/test-utils'
+import { afterEach, describe, expect, it } from 'vitest'
+import { defineComponent, ref } from 'vue'
+import { flushPromises, mount, type VueWrapper } from '@vue/test-utils'
 import AndroidShowcase from '@/components/AndroidShowcase.vue'
+import type { AndroidView } from '@/androidTour'
 
 let wrapper: VueWrapper | undefined
-
-beforeEach(() => {
-  vi.stubGlobal(
-    'ResizeObserver',
-    class {
-      observe() {}
-      disconnect() {}
-    }
+afterEach(() => wrapper?.unmount())
+function render() {
+  wrapper = mount(
+    defineComponent({
+      components: { AndroidShowcase },
+      setup: () => ({ view: ref<AndroidView>('connect') }),
+      template: '<AndroidShowcase :view="view" @select="view = $event" />',
+    })
   )
-})
-
-afterEach(() => {
-  wrapper?.unmount()
-  wrapper = undefined
-  vi.unstubAllGlobals()
-})
-
-function renderShowcase() {
-  wrapper = mount(AndroidShowcase)
   return wrapper
 }
 
-describe('Android product showcase', () => {
-  it('switches between current connection and neighbor layouts', async () => {
-    const view = renderShowcase()
-    expect(view.find('.pm-overview').exists()).toBe(true)
-
-    await view.get('[data-preview="neighbors"]').trigger('click')
-    expect(view.findAll('.pm-device-grid > div')).toHaveLength(9)
-    expect(view.findAll('.pm-neighbor-row')).toHaveLength(3)
-    expect(view.get('[data-preview="neighbors"]').attributes('aria-selected')).toBe('true')
+describe('interactive Android tour', () => {
+  it('updates the serving-cell metrics when the user changes carrier', async () => {
+    const view = render()
+    expect(view.get('.app-metrics').text()).toContain('N41')
+    await view.get('[aria-label="查看载波"] button:last-child').trigger('click')
+    expect(view.get('.app-metrics').text()).toContain('N78')
+    expect(view.get('.radio-metrics').text()).toContain('-87')
   })
 
-  it('renders separate LTE and NR role grids with the verified selection', async () => {
-    const view = renderShowcase()
-    await view.get('[data-preview="lock"]').trigger('click')
-
-    expect(view.findAll('.pm-band-grid')).toHaveLength(2)
-    expect(view.findAll('.pm-band-grid > span.on')).toHaveLength(2)
-    expect(view.get('.pm-band-role .on').text()).toBe('Pcell+Scell')
-    expect(view.get('.pm-band-grid > span.locked').text()).toContain('N78')
-    expect(view.get('.pm-status-pill').text()).toContain('回读一致')
+  it('applies appearance changes in Settings when returning to Connection', async () => {
+    const view = render()
+    await view.get('.app-dock button:last-child').trigger('click')
+    await view.get('[aria-label="演示界面外观"] button:first-child').trigger('click')
+    await view.get('[aria-label="信号质量样式"] button:last-child').trigger('click')
+    await view.get('.app-dock button:first-of-type').trigger('click')
+    expect(view.get('.android-app').attributes('data-app-theme')).toBe('light')
+    expect(view.get('.radio-metrics').classes()).toContain('outlined')
   })
 
-  it('shows independent download and upload charts and allows theme changes', async () => {
-    const view = renderShowcase()
-    await view.get('[data-preview="speed"]').trigger('click')
-
-    const cards = view.findAll('.pm-speed-card')
-    expect(cards).toHaveLength(2)
-    expect(cards[0]!.get('.pm-speed-headline strong').text()).toBe('508')
-    expect(cards[1]!.get('.pm-speed-headline strong').text()).toBe('84.2')
-    expect(view.find('.pm-screen.light').exists()).toBe(true)
-
-    await view.get('.android-theme-switch').trigger('click')
-    expect(view.find('.pm-screen.dark').exists()).toBe(true)
-
-    await view.get('[data-preview="wifi"]').trigger('click')
-    expect(view.find('.pm-wifi').exists()).toBe(true)
+  it('opens Wi-Fi from the test dock and shows the selected frequency range', async () => {
+    const view = render()
+    await view.get('.app-dock button:nth-of-type(3)').trigger('click')
+    await view.get('.app-stack .app-row:last-child').trigger('click')
+    await flushPromises()
+    // Async route panels load only when a visitor opens them.
+    await import('@/components/WifiChannelPreview.vue')
+    await flushPromises()
+    await view.get('.wifi-controls button:last-child').trigger('click')
+    expect(view.get('.wifi-plot').attributes('aria-label')).toContain('6 GHz')
+    expect(view.get('.wifi-readings').text()).toContain('Office-6E')
+    await view.get('[aria-label="返回测试"]').trigger('click')
+    expect(view.get('.android-app').attributes('data-screen')).toBe('tests')
   })
 })

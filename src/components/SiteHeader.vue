@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import SiteIcon from '@/components/SiteIcon.vue'
 import { appIcon, routes } from '@/content'
@@ -9,13 +9,33 @@ type ThemeMode = 'light' | 'dark'
 const theme = ref<ThemeMode>('light')
 const isDark = computed(() => theme.value === 'dark')
 const menuOpen = ref(false)
+const atTop = ref(true)
+const topMarker = ref<HTMLElement>()
+let topObserver: IntersectionObserver | undefined
 const route = useRoute()
+const header = ref<HTMLElement>()
+const menuToggle = ref<HTMLButtonElement>()
+function closeMenu() {
+  if (!menuOpen.value) return
+  menuOpen.value = false
+  menuToggle.value?.focus()
+}
+function dismissOutside(event: PointerEvent) {
+  if (event.target instanceof Node && !header.value?.contains(event.target)) menuOpen.value = false
+}
+watch(menuOpen, (open) => {
+  if (open) document.addEventListener('pointerdown', dismissOutside)
+  else document.removeEventListener('pointerdown', dismissOutside)
+})
+onUnmounted(() => document.removeEventListener('pointerdown', dismissOutside))
 watch(
   () => route.fullPath,
   () => {
     menuOpen.value = false
   }
 )
+
+onUnmounted(() => topObserver?.disconnect())
 
 function preferredTheme(): ThemeMode {
   return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
@@ -26,7 +46,7 @@ function applyTheme(nextTheme: ThemeMode): void {
   document.documentElement.dataset.theme = nextTheme
   document
     .querySelector('meta[name="theme-color"]')
-    ?.setAttribute('content', nextTheme === 'dark' ? '#101613' : '#f3f6f2')
+    ?.setAttribute('content', nextTheme === 'dark' ? '#0c0e14' : '#f5f7fb')
   try {
     localStorage.setItem('cpe-theme', nextTheme)
   } catch {
@@ -39,6 +59,12 @@ function toggleTheme(): void {
 }
 
 onMounted(() => {
+  if (topMarker.value && typeof IntersectionObserver !== 'undefined') {
+    topObserver = new IntersectionObserver(([entry]) => {
+      atTop.value = entry?.isIntersecting ?? false
+    })
+    topObserver.observe(topMarker.value)
+  }
   const existing = document.documentElement.dataset.theme
   let saved: string | null = null
   try {
@@ -57,7 +83,13 @@ onMounted(() => {
 </script>
 
 <template>
-  <header class="topbar" @keydown.esc="menuOpen = false">
+  <div ref="topMarker" class="top-marker" aria-hidden="true"></div>
+  <header
+    ref="header"
+    class="topbar"
+    :class="{ 'over-hero': atTop && route.path === '/' }"
+    @keydown.esc="closeMenu"
+  >
     <RouterLink class="brand-lockup" to="/" aria-label="CPE加加首页">
       <img :src="appIcon" alt="" width="36" height="36" loading="eager" decoding="async" />
       <span>
@@ -101,6 +133,7 @@ onMounted(() => {
         </svg>
       </button>
       <button
+        ref="menuToggle"
         class="mobile-menu-toggle"
         type="button"
         aria-controls="main-navigation"

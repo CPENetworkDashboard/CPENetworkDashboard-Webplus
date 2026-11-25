@@ -52,13 +52,14 @@ const routes: RouteRecordRaw[] = [
 export const router = createRouter({
   history: createWebHashHistory(),
   routes,
-  async scrollBehavior(to, _from, savedPosition) {
+  scrollBehavior(to, from, savedPosition) {
     if (savedPosition) return savedPosition
+    // A new preview or download selection should keep the reader in place.
+    if (to.path === from.path && to.hash === from.hash) return false
     if (to.hash) {
-      // Wait for the outgoing page transition before finding the section.
-      await new Promise((resolve) => setTimeout(resolve, 200))
-      return { el: to.hash, top: 100, behavior: 'auto' }
+      const section = document.getElementById(to.hash.slice(1))
+      if (section) return { el: section, top: 76, behavior: 'instant' }
     }
-    return { top: 0, behavior: 'auto' }
+    return { top: 0, behavior: 'instant' }
   },
 })

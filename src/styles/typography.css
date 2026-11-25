@@ -1,0 +1,58 @@
+/*
+ * Embedded MiSans VF 4.009 from Xiaomi's MiSans.zip (identical to the Android resource).
+ * Copyright © 2020-2025 Beijing Xiaomi Mobile Software Co.,Ltd. All Rights Reserved.
+ * License: /fonts/MiSans-LICENSE.pdf · https://hyperos.mi.com/font/download
+ * About credit: 本站使用小米 MiSans 字体。《MiSans 字体知识产权许可协议》
+ *
+ * Refresh after copy changes, from this repo with FontTools and Brotli installed:
+ *   for site in . ../CPENetworkDashboard-Webplus; do
+ *     rg --no-filename --no-line-number -g '*.{vue,ts,js,mjs,css,html,json,svg}' . "$site"/{index.html,src,public,edge,scripts}
+ *   done > /tmp/cpe-misans-text.txt
+ *   pyftsubset ../CPENetworkDashboard/app/src/main/res/font/misans_variable.ttf \
+ *     --text-file=/tmp/cpe-misans-text.txt \
+ *     --unicodes=U+0020-007E,U+00A0-00FF,U+2000-206F,U+3000-303F,U+FF01-FF60 \
+ *     --layout-features='*' --name-IDs='*' --name-languages='*' --name-legacy \
+ *     --flavor=woff2 --output-file=src/assets/fonts/MiSans-VF.woff2
+ */
+@font-face {
+  font-family: 'MiSans';
+  src: url('../assets/fonts/MiSans-VF.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 150 700;
+  font-display: swap;
+  /* Keep digits tabular even inside components that reset variants with the font shorthand. */
+  font-feature-settings: 'tnum';
+}
+
+:root {
+  --font-sans: 'MiSans', system-ui, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --font-display: var(--font-sans);
+  --font-mono: var(--font-sans);
+  --mono: var(--font-sans);
+  font-family: var(--font-sans);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Native controls and code elements can otherwise use a user-agent font. */
+:where(button, input, select, optgroup, textarea, code, pre, kbd, samp) {
+  font-family: inherit;
+}
+
+/* These mocks and lazy-loaded Leaflet styles explicitly set their own font families. */
+#app :is(
+  .landing-devices > div > span,
+  .am,
+  .pm,
+  .am-mini strong,
+  .am-tile strong,
+  .am-bands span,
+  .am-input,
+  .am-source span,
+  .am-slider b,
+  .leaflet-container,
+  .leaflet-control-zoom-in,
+  .leaflet-control-zoom-out,
+  .leaflet-popup-close-button
+) {
+  font-family: var(--font-sans);
+}

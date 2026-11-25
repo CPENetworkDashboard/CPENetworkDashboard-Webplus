@@ -1,0 +1,270 @@
+/* The playback panel and the story use the same rate tiles in different theme scopes. */
+.android-speed-panel,
+.pm-speed-card {
+  --speed-surface: var(--app-card, var(--p-card, var(--paper, #fff)));
+  --speed-ink: var(--app-fg, var(--p-text, var(--ink, #17202d)));
+  --speed-secondary: var(--app-muted, var(--p-muted, var(--muted, #515d6c)));
+  --speed-border: var(--app-line, var(--p-tile-line, var(--line, #ccd2db)));
+  --speed-blue: var(--app-accent, var(--p-title, #3062c2));
+  color: var(--speed-ink);
+  font-variant-numeric: tabular-nums;
+  text-align: start;
+  min-width: 0;
+}
+:where([data-theme='dark'], [data-app-theme='dark']) .android-speed-panel,
+.pm-screen.dark .pm-speed-card {
+  --speed-green: #6bd3a9;
+}
+[data-app-theme='light'] .android-speed-panel,
+.pm-screen.light .pm-speed-card {
+  --speed-green: #18775c;
+}
+.android-speed-panel {
+  container: speed-panel / inline-size;
+  display: grid;
+  gap: 10px;
+  padding: 2px;
+  line-height: 1.4;
+}
+.speed-toolbar,
+.speed-actions,
+.speed-units {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.speed-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 9px;
+  border-radius: 99px;
+  background: color-mix(in srgb, currentColor 9%, var(--speed-surface));
+  color: var(--speed-secondary);
+  font-size: 0.77rem;
+  font-weight: 600;
+}
+.speed-status::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.speed-status:is([data-phase='complete'], [data-phase='running']) {
+  color: var(--speed-green, #18775c);
+}
+.android-speed-panel button {
+  padding: 4px 12px;
+  min-height: 44px;
+  border: 1px solid var(--speed-border);
+  border-radius: 12px;
+  background: var(--speed-surface);
+  color: var(--speed-ink);
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.android-speed-panel :is(.speed-primary, button[aria-pressed='true']) {
+  color: var(--speed-blue);
+  border-color: color-mix(in srgb, var(--speed-blue) 45%, var(--speed-border));
+  background: color-mix(in srgb, var(--speed-blue) 12%, var(--speed-surface));
+}
+.android-speed-panel button:focus-visible {
+  outline: 2px solid var(--speed-blue);
+  outline-offset: 2px;
+}
+.android-speed-panel button:active {
+  background: color-mix(in srgb, var(--speed-blue) 22%, var(--speed-surface));
+}
+.speed-note {
+  margin: -4px 1px 0;
+  color: var(--speed-secondary);
+  font-size: 0.75rem;
+}
+
+.pm-speed-card,
+.speed-summary,
+.speed-units {
+  padding: 12px 14px;
+  border: 1px solid var(--speed-border);
+  border-radius: 18px;
+  background: var(--speed-surface);
+}
+.pm-speed-card {
+  --speed-accent: var(--speed-blue);
+  display: grid;
+  gap: 6px;
+}
+.pm-speed-card.up {
+  --speed-accent: var(--speed-green, #18775c);
+}
+.pm-speed-card > header,
+.pm-speed-headline {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+.pm-speed-card > header > i {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  color: var(--speed-accent);
+  background: color-mix(in srgb, var(--speed-accent) 12%, transparent);
+  font-size: 20px;
+  font-style: normal;
+}
+.pm-speed-card > header > div {
+  display: grid;
+}
+.pm-speed-card > header b {
+  font-size: 0.93rem;
+  font-weight: 650;
+}
+.pm-speed-card > header span,
+.pm-speed-axis,
+.pm-speed-times,
+.pm-speed-card dt,
+.speed-summary dt {
+  color: var(--speed-secondary);
+  font-size: 0.69rem;
+}
+.pm-speed-headline {
+  align-items: baseline;
+  gap: 5px;
+  margin: 0;
+  color: var(--speed-accent);
+  font-weight: 600;
+}
+.pm-speed-headline strong {
+  font-size: 2rem;
+  font-weight: 650;
+  line-height: 1.12;
+}
+.pm-speed-headline span {
+  font-size: 0.9rem;
+}
+.pm-speed-chart {
+  display: grid;
+  grid-template-columns: 4ch minmax(0, 1fr);
+  gap: 8px;
+  height: 104px;
+  font-size: 0.69rem;
+}
+.pm-speed-axis,
+.pm-speed-times {
+  display: flex;
+  justify-content: space-between;
+}
+.pm-speed-axis {
+  flex-direction: column;
+  padding-block: 1px;
+}
+.pm-speed-times {
+  margin-inline-start: calc(4ch + 8px);
+}
+.pm-speed-plot {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--speed-border);
+  border-radius: 11px;
+  background: color-mix(in srgb, var(--speed-ink) 3%, var(--speed-surface));
+}
+.pm-speed-plot svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  fill: none;
+}
+.pm-speed-plot .grid {
+  stroke: var(--speed-border);
+  opacity: 0.55;
+}
+.pm-speed-plot :is(.guide, line, .speed-curve, circle) {
+  stroke: var(--speed-accent);
+  vector-effect: non-scaling-stroke;
+}
+.pm-speed-plot .guide {
+  stroke-dasharray: 4 4;
+  opacity: 0.5;
+}
+.pm-speed-plot line {
+  stroke-width: 1.6;
+  opacity: 0.45;
+}
+.pm-speed-plot .speed-curve {
+  fill: none;
+  stroke-width: 2;
+}
+.pm-speed-plot circle {
+  fill: var(--speed-surface);
+  stroke-width: 1.2;
+}
+.pm-speed-plot > span {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: var(--speed-secondary);
+  font-size: 0.75rem;
+}
+.pm-speed-card dl,
+.speed-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  margin: 0;
+}
+.pm-speed-card dl {
+  margin-top: 2px;
+  padding-top: 8px;
+  border-top: 1px solid var(--speed-border);
+}
+.pm-speed-card dl > div,
+.speed-summary > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.pm-speed-card dd,
+.speed-summary dd {
+  order: -1;
+  margin: 0;
+  font-size: 0.81rem;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.speed-summary {
+  text-align: center;
+}
+.speed-summary > div + div {
+  border-inline-start: 1px solid var(--speed-border);
+}
+.speed-units {
+  font-size: 0.85rem;
+}
+.speed-units > div {
+  display: flex;
+  gap: 4px;
+}
+@container speed-panel (max-width: 290px) {
+  .pm-speed-card,
+  .speed-summary,
+  .speed-units {
+    padding: 10px;
+  }
+  .pm-speed-chart {
+    height: 90px;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .android-speed-panel button {
+    transition: background-color 120ms ease;
+  }
+}

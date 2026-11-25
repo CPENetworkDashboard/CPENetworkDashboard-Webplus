@@ -1,21 +1,5 @@
 :root {
   color-scheme: light;
-  font-family:
-    'Inter Variable',
-    'Noto Sans SC Variable',
-    system-ui,
-    -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI Variable',
-    'Segoe UI',
-    'Microsoft YaHei UI',
-    'Microsoft YaHei',
-    'PingFang SC',
-    'Noto Sans CJK SC',
-    'HarmonyOS Sans SC',
-    MiSans,
-    ui-sans-serif,
-    sans-serif;
   color: #181b18;
   background: #f3f6f2;
   font-synthesis: none;
@@ -36,9 +20,6 @@
   --button-bg: #174f43;
   --button-text: #f6faf6;
   --button-hover-shadow: 0 12px 30px rgba(25, 32, 27, 0.16);
-  --mono:
-    'JetBrains Mono Variable', ui-monospace, 'SF Mono', 'Cascadia Mono', 'JetBrains Mono',
-    'Roboto Mono', monospace;
   --gradient-primary: linear-gradient(135deg, var(--accent), var(--accent-2));
   --gradient-warm: linear-gradient(135deg, var(--warm), #e67e22);
   --glass-bg: rgba(255, 255, 255, 0.9);

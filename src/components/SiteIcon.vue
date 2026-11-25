@@ -2,6 +2,11 @@
 defineProps<{ name: string; size?: number }>()
 
 const paths: Record<string, string> = {
+  home: 'M3 11 12 3l9 8v9h-6v-6H9v6H3z',
+  lock: 'M7 10V7a5 5 0 0 1 10 0M5 10h14v10H5z',
+  timer: 'M10 2h4m-2 5v5m8 1a8 8 0 1 1-16 0 8 8 0 0 1 16 0Z',
+  settings: 'm12 2 9 5v10l-9 5-9-5V7Zm3 10a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z',
+  wifi: 'M2 8a16 16 0 0 1 20 0M5.5 12a10 10 0 0 1 13 0M9 16a5 5 0 0 1 6 0M12 20h.01',
   signal: 'M4 20v-3m5 3v-7m6 7V9m5 11V4',
   sliders: 'M4 7h7m4 0h5M4 17h3m4 0h9M11 4v6M7 14v6',
   activity: 'M3 12h4l3-8 4 16 3-8h4',

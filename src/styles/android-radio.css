@@ -1,0 +1,405 @@
+/* The story phone supplies --p-*; the interactive frame supplies --app-*. */
+.android-radio {
+  --ar-card: var(--app-card, var(--p-card, #1c1e25));
+  --ar-line: var(--app-line, var(--p-tile-line, #444751));
+  --ar-fg: var(--app-fg, var(--p-text, #eef1f8));
+  --ar-muted: var(--app-muted, var(--p-muted, #c1c7d4));
+  --ar-accent: var(--app-accent, var(--p-title, #abcafa));
+  --ar-selected: var(--app-selected, var(--p-tabs, #2e3440));
+  --ar-on-accent: var(--app-on-accent, var(--p-on-fill, #192d49));
+  --ar-weak: color-mix(in srgb, #d97722 50%, var(--ar-fg));
+  --ar-good: color-mix(in srgb, #289988 50%, var(--ar-fg));
+  container-type: inline-size;
+  display: grid;
+  align-content: start;
+  min-width: 0;
+  gap: 8px;
+  color: var(--ar-fg);
+  font-variant-numeric: tabular-nums;
+  text-align: start;
+  line-height: 1.4;
+}
+.android-radio *,
+.android-radio *::before,
+.android-radio *::after {
+  box-sizing: border-box;
+}
+.android-radio :where(h3, p, ul, dl, dd, fieldset, legend) {
+  margin: 0;
+  padding: 0;
+}
+.android-radio :where(button, input, select) {
+  min-width: 0;
+  font: inherit;
+  color: inherit;
+}
+.android-radio button {
+  cursor: pointer;
+  touch-action: manipulation;
+  min-height: 38px;
+  border: 1px solid var(--ar-line);
+  border-radius: 10px;
+  padding: 6px 10px;
+  background: var(--ar-card);
+  line-height: 1.25;
+}
+.android-radio button:disabled {
+  opacity: 0.48;
+  cursor: default;
+}
+.android-radio :focus-visible,
+.ar-band input:focus-visible + span {
+  outline: 2px solid var(--ar-accent);
+  outline-offset: 1px;
+}
+.ar-card,
+.ar-confirm {
+  display: grid;
+  min-width: 0;
+  gap: 8px;
+  padding: 12px;
+  border-radius: 13px;
+  background: var(--ar-card);
+}
+.android-radio h3,
+.ar-confirm > strong {
+  color: var(--ar-accent);
+  font-size: 0.91rem;
+  font-weight: 650;
+  line-height: 1.4;
+}
+.ar-hint,
+.ar-empty,
+.ar-feedback,
+.ar-readout,
+.ar-confirm p,
+.ar-error {
+  color: var(--ar-muted);
+  font-size: 0.76rem;
+  overflow-wrap: anywhere;
+}
+.ar-card h3 + .ar-hint {
+  margin-top: -5px;
+}
+.ar-stats {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 5px;
+}
+.ar-stats > div {
+  grid-column: span 3;
+  display: grid;
+  align-content: center;
+  gap: 3px;
+  min-height: 49px;
+  padding: 5px 3px;
+  border: 1px solid var(--ar-line);
+  border-radius: 11px;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+.ar-stats > div:nth-child(-n + 3) {
+  grid-column: span 2;
+}
+.ar-stats dt,
+.ar-neighbor small {
+  color: var(--ar-muted);
+  font-size: 0.7rem;
+}
+.ar-stats dd {
+  color: var(--ar-fg);
+  font-size: 0.87rem;
+  font-weight: 660;
+}
+.ar-neighbor-item + .ar-neighbor-item {
+  border-top: 1px solid var(--ar-line);
+}
+.android-radio .ar-neighbor {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 0.85fr 1.08fr 1fr auto;
+  align-items: baseline;
+  gap: 4px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  padding: 9px 3px;
+  text-align: start;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+.ar-neighbor strong {
+  color: var(--ar-accent);
+  font-size: 0.95rem;
+}
+.ar-neighbor small {
+  font-weight: 500;
+}
+.ar-neighbor span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.ar-row-mark {
+  color: var(--ar-muted);
+  font-size: 0.85rem;
+  font-style: normal;
+}
+.ar-weak,
+.ar-error {
+  color: var(--ar-weak);
+}
+.ar-good {
+  color: var(--ar-good);
+}
+.android-radio .ar-neighbor[aria-pressed='true'],
+.android-radio .ar-neighbor[aria-expanded='true'] {
+  background: var(--ar-selected);
+}
+.ar-confirm {
+  border: 1px solid var(--ar-accent);
+  gap: 6px;
+}
+.ar-neighbor-item .ar-confirm {
+  margin: 2px 0 8px;
+}
+.ar-confirm p {
+  margin: 0 0 3px;
+}
+
+.ar-panel,
+.ar-actions {
+  display: grid;
+  min-width: 0;
+  gap: 8px;
+}
+.ar-tabs {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  padding: 3px;
+  border: 1px solid var(--ar-line);
+  border-radius: 24px;
+  background: var(--ar-card);
+}
+.ar-tabs button {
+  padding: 5px 1px;
+  min-height: 33px;
+  border-color: transparent;
+  border-radius: 20px;
+  color: var(--ar-muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+.ar-tabs button[aria-selected='true'] {
+  border-color: var(--ar-line);
+  background: var(--ar-selected);
+  color: var(--ar-accent);
+}
+.ar-pair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+.android-radio .ar-primary,
+.ar-pair button[aria-pressed='true'] {
+  background: var(--ar-accent);
+  border-color: transparent;
+  color: var(--ar-on-accent);
+}
+.ar-pair button {
+  background: var(--ar-selected);
+}
+.ar-band-group,
+.ar-fieldset {
+  min-width: 0;
+  border: 0;
+}
+.ar-band-group {
+  margin-top: 6px;
+}
+.ar-band-group legend,
+.ar-fieldset legend {
+  margin-bottom: 6px;
+  font-size: 0.84rem;
+  font-weight: 650;
+}
+.ar-band-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 7px;
+}
+.ar-band {
+  position: relative;
+  min-width: 0;
+  cursor: pointer;
+}
+.ar-band input {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.ar-band span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-height: 37px;
+  border: 1px solid var(--ar-line);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--ar-card) 82%, var(--ar-selected));
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+.ar-band input:checked + span {
+  background: var(--ar-selected);
+  border-color: var(--ar-accent);
+}
+.ar-band input:checked + span::before {
+  content: '';
+  width: 6px;
+  height: 11px;
+  border: solid var(--ar-accent);
+  border-width: 0 1.6px 1.6px 0;
+  transform: translateY(-1px) rotate(40deg);
+}
+.ar-actions button {
+  min-height: 42px;
+  font-weight: 600;
+}
+.ar-actions .ar-clear {
+  color: var(--ar-fg);
+  background: color-mix(in srgb, #b94137 28%, var(--ar-card));
+  border-color: transparent;
+}
+.ar-head,
+.ar-entries li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.ar-field {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+  gap: 4px;
+  color: var(--ar-muted);
+  font-size: 0.76rem;
+}
+.ar-field input,
+.ar-field select {
+  width: 100%;
+  min-height: 40px;
+  padding: 6px 9px;
+  border: 1px solid var(--ar-line);
+  border-radius: 8px;
+  background: var(--ar-card);
+  color: var(--ar-fg);
+  font-size: 1rem;
+}
+.ar-entry-fields {
+  display: flex;
+  gap: 8px;
+}
+.ar-entry-fields > :first-child {
+  flex-grow: 1.6;
+}
+.ar-entries {
+  list-style: none;
+}
+.ar-entries li {
+  padding: 5px 0;
+}
+.ar-entries li + li {
+  border-top: 1px solid var(--ar-line);
+}
+.ar-entries li > div {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-size: 0.82rem;
+}
+.ar-entries li span {
+  color: var(--ar-muted);
+  font-size: 0.76rem;
+}
+.android-radio .ar-text-button {
+  flex: none;
+  min-height: 32px;
+  border: 0;
+  padding: 4px;
+  background: transparent;
+  color: var(--ar-accent);
+  font-size: 0.76rem;
+}
+.android-radio .ar-add {
+  background: var(--ar-selected);
+}
+.ar-empty {
+  padding: 8px;
+  text-align: center;
+}
+.ar-feedback,
+.ar-readout {
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--ar-card);
+}
+.ar-feedback {
+  color: var(--ar-accent);
+}
+.ar-readout span {
+  font-weight: 650;
+}
+@media (hover: hover) {
+  .ar-band:hover span,
+  .android-radio button:not(:disabled):hover {
+    box-shadow: inset 0 0 0 1px var(--ar-accent);
+  }
+}
+@container (max-width: 290px) {
+  .ar-card {
+    padding: 10px;
+  }
+  .ar-neighbor small {
+    display: block;
+  }
+  .ar-neighbor :nth-child(4) {
+    align-self: center;
+  }
+  .ar-band-grid {
+    gap: 5px;
+  }
+  .ar-tabs button {
+    font-size: 0.74rem;
+  }
+}
+@container (max-width: 235px) {
+  .ar-tabs {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    border-radius: 14px;
+  }
+  .ar-band-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .ar-stats > div:nth-child(-n + 3) {
+    grid-column: span 3;
+  }
+  .ar-stats > div:last-child {
+    grid-column: 1 / -1;
+  }
+  .ar-pair {
+    gap: 4px;
+  }
+  .ar-pair button {
+    padding-inline: 2px;
+  }
+}

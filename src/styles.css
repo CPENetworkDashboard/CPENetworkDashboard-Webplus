@@ -2,8 +2,5 @@
 @import './styles/site.css';
 @import './styles/experience.css';
 @import './styles/status.css';
-@import './styles/home.css';
-@import './styles/story.css';
-@import './styles/app-mock.css';
-@import './styles/phone-mock.css';
+@import './styles/overview.css';
 @import './styles/android-showcase.css';

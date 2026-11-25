@@ -8,7 +8,7 @@ import type {
   Route,
 } from '@/types'
 
-export const appIcon = '/media/app-icon.png'
+export const appIcon = '/media/app-icon-ui.webp'
 
 export const routes: Route[] = [
   { path: '/', label: '首页', title: 'CPE加加' },

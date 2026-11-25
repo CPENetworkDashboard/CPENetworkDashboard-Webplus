@@ -4,125 +4,105 @@ import { aboutInfo, appIcon } from '@/content'
 </script>
 
 <template>
-  <section class="page-view about-page">
-    <header class="about-hero">
-      <LazyImage :src="appIcon" alt="" eager />
-      <div>
-        <p>关于</p>
-        <h1>{{ aboutInfo.chineseName }}</h1>
-        <span>{{ aboutInfo.englishName }} / 版本 {{ aboutInfo.versionName }}</span>
+  <section class="content-width sp-page" aria-labelledby="about-title">
+    <header class="sp-header sp-about-header">
+      <div class="sp-identity">
+        <LazyImage :src="appIcon" alt="" :width="64" :height="64" eager />
+        <div>
+          <p class="sp-wordmark">{{ aboutInfo.englishName }}</p>
+          <h1 id="about-title">关于{{ aboutInfo.chineseName }}</h1>
+        </div>
       </div>
+      <p>{{ aboutInfo.description }}</p>
+      <dl class="sp-project-facts">
+        <div>
+          <dt>当前版本</dt>
+          <dd>{{ aboutInfo.versionName.replace('Desktop', '桌面端') }}</dd>
+        </div>
+        <div>
+          <dt>用户交流群（QQ）</dt>
+          <dd>{{ aboutInfo.userGroup }}</dd>
+        </div>
+      </dl>
     </header>
 
-    <section class="about-intro">
-      <div>
-        <p>{{ aboutInfo.description }}</p>
-        <small>{{ aboutInfo.note }}</small>
-      </div>
-      <div class="about-stats">
-        <span>QQ群</span>
-        <strong>{{ aboutInfo.userGroup }}</strong>
-      </div>
-    </section>
-
-    <section class="about-section makers-section">
-      <div class="section-copy split-title-copy">
-        <p>开发者</p>
-        <h2>
-          <span>CPE加加开发者：</span>
-          <small>CPE++ Developers</small>
-        </h2>
-      </div>
-      <div class="person-grid">
-        <article
-          v-for="person in aboutInfo.makers"
-          :key="person.name"
-          class="person-card maker-card"
-        >
-          <div>
-            <small>CPE++ Developer</small>
-            <h3>{{ person.name }}</h3>
-          </div>
-          <div class="person-links">
+    <section class="sp-section" aria-labelledby="makers-title">
+      <h2 id="makers-title">开发者</h2>
+      <ul class="sp-people">
+        <li v-for="person in aboutInfo.makers" :key="person.name">
+          <h3>{{ person.name }}</h3>
+          <div class="sp-links">
             <a
               v-for="link in person.links"
               :key="link.href"
               :href="link.href"
               target="_blank"
-              rel="noreferrer"
+              rel="noopener noreferrer"
+              :aria-label="person.name + '的' + link.label + '主页'"
+              >{{ link.label }}</a
             >
-              {{ link.label }}
-            </a>
           </div>
-        </article>
-      </div>
+        </li>
+      </ul>
     </section>
 
-    <section class="about-sponsor">
-      <div class="section-copy split-title-copy">
-        <p>赞助</p>
-        <h2>
-          <span>{{ aboutInfo.sponsor.title }}</span>
-          <small>Sponsor</small>
-        </h2>
-      </div>
-      <div class="sponsor-panel">
-        <p>{{ aboutInfo.sponsor.description }}</p>
-        <div class="sponsor-channel-grid">
-          <article class="sponsor-channel-card ifdian-channel-card">
-            <div class="sponsor-channel-copy">
-              <strong>爱发电</strong>
-              <small>跳转主页支持 CPE加加</small>
-            </div>
+    <section class="sp-section" aria-labelledby="sponsor-title">
+      <h2 id="sponsor-title">赞助</h2>
+      <div>
+        <p>赞助用于服务器、下载流量、测试设备和多平台适配。</p>
+        <a
+          class="sp-link"
+          :href="aboutInfo.sponsor.ifdianUrl"
+          target="_blank"
+          rel="noopener noreferrer"
+          >在爱发电赞助</a
+        >
+        <div class="sp-codes">
+          <figure v-for="qr in aboutInfo.sponsor.qrs" :key="qr.image">
             <a
-              class="ifdian-sponsor-link"
-              :href="aboutInfo.sponsor.ifdianUrl"
+              :href="qr.image"
               target="_blank"
-              rel="noreferrer"
+              rel="noopener noreferrer"
+              :aria-label="'查看' + qr.alt + '原图'"
             >
-              <img
-                width="200"
-                src="https://pic1.afdiancdn.com/static/img/welcome/button-sponsorme.png"
-                alt="在爱发电赞助 CPE加加"
-                loading="lazy"
-                decoding="async"
-              />
+              <LazyImage :src="qr.image" :alt="qr.alt" :width="152" :height="152" />
             </a>
-          </article>
-          <article v-for="qr in aboutInfo.sponsor.qrs" :key="qr.image" class="sponsor-qr-card">
-            <LazyImage :src="qr.image" :alt="qr.alt" />
-            <strong>{{ qr.label }}</strong>
-            <small>扫码支持 CPE加加</small>
-          </article>
+            <figcaption>{{ qr.label }}</figcaption>
+          </figure>
         </div>
       </div>
     </section>
 
-    <section class="about-section thanks-section">
-      <div class="section-copy split-title-copy">
-        <p>致谢</p>
-        <h2>
-          <span>特别致谢</span>
-          <small>Special Thanks</small>
-        </h2>
-      </div>
-      <div class="thanks-list">
-        <article v-for="person in aboutInfo.thanks" :key="person.name" class="thanks-card">
+    <section class="sp-section" aria-labelledby="thanks-title">
+      <h2 id="thanks-title">特别致谢</h2>
+      <ul class="sp-credits">
+        <li v-for="person in aboutInfo.thanks" :key="person.name">
           <h3>{{ person.name }}</h3>
           <p>{{ person.contribution }}</p>
-          <div v-if="person.links?.length" class="person-links">
+          <div v-if="person.links?.length" class="sp-links">
             <a
               v-for="link in person.links"
               :key="link.href"
               :href="link.href"
               target="_blank"
-              rel="noreferrer"
+              rel="noopener noreferrer"
+              :aria-label="person.name + ' · ' + link.label"
+              >{{ link.label }}</a
             >
-              {{ link.label }}
-            </a>
           </div>
-        </article>
-      </div>
+        </li>
+      </ul>
     </section>
+    <p class="font-credit">
+      本站使用小米 MiSans 字体。<a
+        class="sp-link"
+        href="/fonts/MiSans-LICENSE.pdf"
+        target="_blank"
+        rel="noopener noreferrer"
+        >字体许可协议</a
+      >
+    </p>
   </section>
 </template>
+
+<style src="../styles/support-pages.css"></style>
