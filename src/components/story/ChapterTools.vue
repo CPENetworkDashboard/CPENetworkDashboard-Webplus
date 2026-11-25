@@ -45,7 +45,7 @@ const fly = (index: number) => pop(span(t.value, 0.3 + index * 0.06, 0.5 + index
 
 <template>
   <template v-if="mode === 'screen'">
-    <div class="pm-seg"><span>2.4 GHz</span><span class="on">5 GHz</span><span>6 GHz</span></div>
+    <div class="pm-seg"><span>2.4 GHz</span><span class="on">5 GHz</span></div>
     <div class="pm-card glow">
       <h4>信道占用</h4>
       <svg class="pm-wifi" viewBox="0 0 336 150">

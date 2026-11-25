@@ -1,20 +1,10 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { RouterLink, useRoute, useRouter } from 'vue-router'
+import { RouterLink } from 'vue-router'
 import AndroidShowcase from '@/components/AndroidShowcase.vue'
-import ProductExplorer from '@/components/ProductExplorer.vue'
 import SiteIcon from '@/components/SiteIcon.vue'
 import { supportedDevices } from '@/content'
-import { androidFeature, type AndroidView } from '@/androidTour'
-
-const route = useRoute(),
-  router = useRouter()
 const search = ref('')
-const view = computed(() => androidFeature(route.query.view).id)
-function chooseView(id: AndroidView) {
-  if (view.value !== id)
-    void router.replace({ path: '/product', query: { ...route.query, view: id }, hash: route.hash })
-}
 const filteredDevices = computed(() =>
   supportedDevices.filter((row) =>
     row.join(' ').toLowerCase().includes(search.value.trim().toLowerCase())
@@ -24,31 +14,19 @@ const filteredDevices = computed(() =>
 
 <template>
   <div class="guide-backdrop">
-    <div class="product-guide content-width">
-      <header id="mobile" class="guide-header">
-        <div>
-          <p class="section-kicker">产品介绍</p>
-          <h1>Android 界面导览</h1>
-        </div>
-        <nav class="guide-index" aria-label="产品介绍目录">
-          <RouterLink :to="{ path: '/product', query: route.query, hash: '#desktop' }"
-            >桌面端</RouterLink
-          ><RouterLink :to="{ path: '/product', query: route.query, hash: '#devices' }"
-            >设备兼容性</RouterLink
-          >
-        </nav>
-      </header>
-      <AndroidShowcase :view="view" @select="chooseView" />
-      <section id="desktop" class="guide-section" aria-labelledby="desktop-title">
-        <header class="section-intro">
-          <div>
-            <p class="section-kicker">macOS / Windows</p>
-            <h2 id="desktop-title">在桌面上观察网络</h2>
-          </div>
-          <p>在大屏上核对射频指标、读取锁定配置，或追踪数据包经过的节点。</p>
-        </header>
-        <ProductExplorer />
-      </section>
+    <header class="product-guide-intro content-width">
+      <div>
+        <p class="section-kicker">CPE加加</p>
+        <h1>产品功能</h1>
+      </div>
+      <nav class="guide-index" aria-label="产品目录">
+        <RouterLink :to="{ path: '/product', hash: '#desktop' }">桌面端</RouterLink>
+        <RouterLink :to="{ path: '/product', hash: '#mobile' }">Android</RouterLink>
+        <RouterLink :to="{ path: '/product', hash: '#devices' }">设备兼容性</RouterLink>
+      </nav>
+    </header>
+    <AndroidShowcase />
+    <div class="product-guide content-width film-after">
       <section id="devices" class="guide-section device-directory" aria-labelledby="devices-title">
         <div class="section-intro">
           <div>

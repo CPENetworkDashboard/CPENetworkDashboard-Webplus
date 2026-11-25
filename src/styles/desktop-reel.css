@@ -1,0 +1,374 @@
+/* All motion is a pose supplied by the host. Keep the layers in the same 3D context. */
+.desktop-reel {
+  --desk-bg: var(--s-bg, #101923);
+  --desk-pane: var(--s-pane, #17212e);
+  --desk-tile: var(--s-tile, #1d2a39);
+  --desk-line: var(--s-line, #364454);
+  --desk-ink: var(--s-text, #eef4fb);
+  --desk-muted: var(--s-muted, #b1c1d3);
+  --desk-blue: var(--s-accent, #9dcbff);
+  container: desktop-board / size;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  perspective: 1000px;
+  color: var(--desk-ink);
+  font-family: var(--font-sans, 'MiSans', system-ui, sans-serif);
+  font-variant-numeric: tabular-nums;
+  text-align: start;
+  line-height: 1.3;
+  pointer-events: none;
+}
+.reel-window {
+  --pad: clamp(9px, 2.4cqh, 15px);
+  --depth: clamp(42px, 13cqw, 80px);
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  width: 94%;
+  height: min(89%, 380px);
+  border: 1px solid color-mix(in srgb, var(--desk-muted) 60%, var(--desk-line));
+  border-radius: 13px;
+  background: linear-gradient(148deg, var(--desk-tile), var(--desk-bg) 63%);
+  box-shadow: 0 12px 26px -15px #040b16;
+  transform: rotateX(var(--pitch, 0deg)) rotateY(var(--yaw, 0deg)) rotateZ(var(--roll, 0deg))
+    scale(var(--zoom, 1));
+}
+.reel-window,
+.reel-body,
+.reel-work,
+.reel-radio-grid {
+  transform-style: preserve-3d;
+}
+.reel-titlebar,
+.reel-panel-head,
+.reel-label,
+.reel-connected,
+.reel-side-items > span {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.reel-titlebar {
+  padding: 7px var(--pad);
+  border-bottom: 1px solid var(--desk-line);
+  font-size: clamp(12px, 2.4cqw, 15px);
+}
+.reel-titlebar small,
+.reel-panel-head small {
+  margin-inline-start: auto;
+  color: var(--desk-muted);
+  font-size: clamp(10px, 2cqw, 12px);
+}
+.reel-lights {
+  display: flex;
+  gap: 4px;
+  margin-inline-end: 3px;
+}
+.reel-lights i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--desk-line);
+}
+.reel-lights i:first-child {
+  background: var(--desk-muted);
+}
+.reel-body {
+  display: grid;
+  grid-template-columns: clamp(64px, 16cqw, 100px) minmax(0, 1fr);
+  gap: var(--pad);
+  padding: var(--pad);
+  min-height: 0;
+}
+.reel-sidebar,
+.reel-work {
+  min-width: 0;
+  min-height: 0;
+  border: 1px solid var(--desk-line);
+  border-radius: 8px;
+  background: var(--desk-pane);
+}
+.reel-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px 5px;
+  color: var(--desk-muted);
+  font-size: clamp(11px, 2.15cqw, 14px);
+}
+.reel-connected {
+  padding-inline: 6px;
+  font-size: 0.88em;
+}
+.reel-connected i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--desk-blue);
+}
+.reel-side-items {
+  display: grid;
+  gap: 4px;
+}
+.reel-side-items > span {
+  padding: 6px;
+  border-inline-start: 2px solid transparent;
+}
+.reel-side-items [data-active='true'] {
+  border-color: var(--desk-blue);
+  background: var(--desk-tile);
+  color: var(--desk-blue);
+}
+.reel-sidebar > small {
+  margin: auto 6px 0;
+}
+.reel-work {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: var(--pad);
+  padding: var(--pad);
+}
+.reel-panel-head {
+  border-bottom: 1px solid var(--desk-line);
+  padding-bottom: 6px;
+}
+.reel-panel-head strong {
+  font-size: clamp(13px, 2.7cqw, 18px);
+  font-weight: 580;
+}
+.reel-radio-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.62fr) minmax(0, 1fr);
+  grid-template-rows: 1fr 1fr;
+  gap: 6px;
+}
+.reel-signal,
+.reel-reading,
+.reel-band-panel,
+.reel-ping-panel {
+  display: grid;
+  align-content: center;
+  min-width: 0;
+  min-height: 0;
+  padding: var(--pad);
+  border: 1px solid var(--desk-line);
+  border-radius: 7px;
+  background: var(--desk-tile);
+}
+.reel-signal {
+  grid-row: span 2;
+  gap: 7px;
+  border-color: color-mix(in srgb, var(--desk-blue) 52%, var(--desk-line));
+  background: linear-gradient(150deg, #2b4058, var(--desk-tile));
+  box-shadow: 0 calc(var(--lift, 0) * 12px) calc(var(--lift, 0) * 22px) #070e1a6b;
+  transform: translateZ(calc(var(--depth) * var(--lift, 0)));
+}
+.reel-reading {
+  transform: translateZ(calc(var(--depth) * var(--lift, 0) * 0.26));
+}
+.reel-label,
+.reel-reading > span,
+.reel-record > small,
+.reel-strip {
+  color: var(--desk-muted);
+  font-size: clamp(11px, 2.15cqw, 14px);
+}
+.reel-number {
+  color: var(--desk-blue);
+  font-size: clamp(26px, min(8cqw, 12cqh), 55px);
+  font-weight: 610;
+  line-height: 1.05;
+  white-space: nowrap;
+}
+.reel-number small,
+.reel-label b small {
+  font-size: 0.4em;
+  font-weight: 500;
+}
+.reel-meter {
+  display: block;
+  height: 3px;
+  background: var(--desk-line);
+}
+.reel-meter i {
+  display: block;
+  width: 90%;
+  height: 100%;
+  background: var(--desk-blue);
+}
+.reel-reading b {
+  font-size: clamp(16px, min(4.2cqw, 6.2cqh), 27px);
+  font-weight: 580;
+}
+.reel-reading small {
+  color: var(--desk-muted);
+  font-size: 0.6em;
+}
+.reel-strip {
+  display: flex;
+  justify-content: space-between;
+  gap: 6px;
+}
+.reel-strip b {
+  color: var(--desk-ink);
+  font-weight: 550;
+  white-space: nowrap;
+}
+.reel-band-panel {
+  gap: 12px;
+}
+.reel-bands {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 4px;
+}
+.reel-bands > span {
+  padding-block: 8px;
+  text-align: center;
+  border-bottom: 2px solid var(--desk-line);
+  color: var(--desk-muted);
+  font-size: clamp(12px, 2.7cqw, 18px);
+}
+.reel-bands [data-selected='true'] {
+  border-color: var(--desk-blue);
+  background: #273d56;
+  color: var(--desk-blue);
+  font-weight: 650;
+}
+.reel-lock-record {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--pad);
+}
+.reel-record {
+  display: grid;
+  gap: 2px;
+  padding-inline-start: 8px;
+  border-inline-start: 2px solid var(--desk-line);
+}
+.reel-record b {
+  display: grid;
+  align-items: center;
+  font-size: clamp(16px, 3.8cqw, 24px);
+}
+.reel-record b::before,
+.reel-record b > span {
+  grid-area: 1 / 1;
+}
+.reel-record b > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--desk-blue);
+}
+.reel-record[data-ready='false'] b > span {
+  visibility: hidden;
+}
+.reel-record[data-ready='false'] b::before {
+  content: '—';
+  color: var(--desk-muted);
+}
+.reel-ping-panel {
+  grid-template-rows: auto minmax(0, 1fr);
+  align-content: stretch;
+  gap: 6px;
+}
+.reel-label b {
+  margin-inline-start: auto;
+  color: var(--desk-blue);
+  font-size: clamp(21px, 5.5cqw, 34px);
+  font-weight: 580;
+}
+.reel-plot {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  fill: none;
+}
+.reel-plot path {
+  vector-effect: non-scaling-stroke;
+}
+.reel-guides {
+  stroke: var(--desk-line);
+}
+.reel-trace {
+  stroke: var(--desk-blue);
+  stroke-width: 2.5;
+  stroke-linejoin: round;
+}
+.desktop-reel[data-held='true'] :is(.reel-window, [data-layer]) {
+  transform: none;
+}
+
+@container desktop-board (max-width: 420px) {
+  .reel-window {
+    --pad: 7px;
+    height: min(92%, 278px);
+    width: 96%;
+  }
+  .reel-body {
+    grid-template-columns: 28px minmax(0, 1fr);
+    gap: 5px;
+  }
+  .reel-sidebar {
+    padding: 9px 0;
+    align-items: stretch;
+  }
+  .reel-connected {
+    justify-content: center;
+  }
+  .reel-side-items > span {
+    justify-content: center;
+    padding: 5px 0;
+  }
+  .reel-sidebar span span,
+  .reel-connected > span,
+  .reel-sidebar > small,
+  .reel-label > small {
+    display: none;
+  }
+  .reel-strip {
+    flex-wrap: wrap;
+  }
+  .reel-bands {
+    gap: 2px;
+  }
+}
+@container desktop-board (max-height: 300px) {
+  .reel-titlebar {
+    padding-block: 4px;
+  }
+  .reel-sidebar {
+    gap: 7px;
+  }
+  .reel-reading {
+    padding-block: 3px;
+  }
+  .reel-panel-head {
+    padding-bottom: 3px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .desktop-reel :is(.reel-window, [data-layer]) {
+    transform: none;
+    box-shadow: none;
+  }
+  .reel-bands [data-band='B8'] {
+    border-color: var(--desk-blue);
+    background: #273d56;
+    color: var(--desk-blue);
+    font-weight: 650;
+  }
+  .reel-record[data-ready='false'] b > span {
+    visibility: visible;
+  }
+  .reel-record[data-ready='false'] b::before {
+    content: none;
+  }
+  .reel-trace {
+    stroke-dashoffset: 0;
+  }
+}

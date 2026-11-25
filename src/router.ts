@@ -1,5 +1,7 @@
 import { createRouter, createWebHashHistory, type RouteRecordRaw } from 'vue-router'
 
+import { linkedScene } from '@/components/story/film'
+
 const routes: RouteRecordRaw[] = [
   {
     path: '/',
@@ -54,12 +56,20 @@ export const router = createRouter({
   routes,
   scrollBehavior(to, from, savedPosition) {
     if (savedPosition) return savedPosition
-    // A new preview or download selection should keep the reader in place.
-    if (to.path === from.path && to.hash === from.hash) return false
     if (to.hash) {
       const section = document.getElementById(to.hash.slice(1))
       if (section) return { el: section, top: 76, behavior: 'instant' }
     }
+    const scene = to.path === '/product' ? linkedScene(to.query.view) : undefined
+    if (scene && (scene !== linkedScene(from.query.view) || from.path !== to.path || from.hash)) {
+      const marker = document.getElementById('film-' + scene)
+      if (marker) {
+        const stage = document.querySelector('.film-stage')
+        const top = stage ? parseFloat(getComputedStyle(stage).top) || 0 : 76
+        return { el: marker, top, behavior: 'instant' }
+      }
+    }
+    if (to.path === from.path && to.hash === from.hash) return false
     return { top: 0, behavior: 'instant' }
   },
 })

@@ -1,0 +1,274 @@
+/* Both shots fit the frame supplied by the film, including its static reduced-motion layout. */
+.spectrum-scene {
+  --sp-surface: #1b2836;
+  --sp-line: #46586a;
+  --sp-ink: #f0f5fa;
+  --sp-muted: #b9c9d8;
+  --sp-blue: #9dc5ff;
+  --sp-teal: #79dcce;
+  container: spectrum / size;
+  contain-intrinsic-block-size: 360px;
+  width: min(100%, 600px);
+  height: 100%;
+  max-height: 500px;
+  min-height: 0;
+  min-width: 0;
+  place-self: center;
+  display: grid;
+  grid-template: minmax(0, 1fr) / minmax(0, 1fr);
+  color: var(--sp-ink);
+  font-family: inherit;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.25;
+  text-align: start;
+}
+.sp-throughput,
+.sp-wifi {
+  display: grid;
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  place-self: center;
+  width: min(100cqw, 560px);
+  height: min(100cqh, 472px);
+  min-height: 0;
+  gap: clamp(5px, 2cqh, 12px);
+  padding: clamp(2px, 1cqh, 5px) 3px;
+  box-sizing: border-box;
+}
+.sp-wifi {
+  grid-template-rows: minmax(0, 1.15fr) minmax(0, 0.85fr);
+}
+.sp-plate,
+.spectrum-scene .pm-speed-card {
+  box-sizing: border-box;
+  min-width: 0;
+  min-height: 0;
+  padding: clamp(6px, 2cqh, 14px) clamp(10px, 3.2cqw, 18px);
+  border: 1px solid var(--sp-line);
+  border-radius: clamp(14px, 4cqw, 22px);
+  background: linear-gradient(128deg, #283b4e, var(--sp-surface) 72%);
+  box-shadow: 0 7px 18px -12px #040c16b3;
+}
+.spectrum-scene .pm-speed-card {
+  --speed-ink: var(--sp-ink);
+  --speed-surface: var(--sp-surface);
+  --speed-border: var(--sp-line);
+  --speed-secondary: var(--sp-muted);
+  --speed-accent: var(--sp-blue);
+  grid-template:
+    'label rate' auto
+    'chart chart' minmax(0, 1fr)
+    'scale scale' auto
+    'stats stats' auto / minmax(0, 1fr) auto;
+  gap: clamp(2px, 0.85cqh, 5px) 8px;
+  line-height: 1.15;
+}
+.spectrum-scene .pm-speed-card.up {
+  --speed-accent: var(--sp-teal);
+}
+.spectrum-scene .pm-speed-card > header {
+  grid-area: label;
+  gap: 7px;
+}
+.spectrum-scene .pm-speed-card > header i {
+  width: clamp(25px, 6cqh, 32px);
+  height: clamp(25px, 6cqh, 32px);
+}
+.spectrum-scene .pm-speed-card > header b {
+  font-size: clamp(13px, 3.5cqw, 16px);
+}
+.spectrum-scene .pm-speed-card > header span {
+  font-size: 10px;
+}
+.spectrum-scene .pm-speed-headline {
+  grid-area: rate;
+  align-self: center;
+}
+.spectrum-scene .pm-speed-headline strong {
+  font-size: clamp(24px, 6.7cqh, 35px);
+}
+.spectrum-scene .pm-speed-headline span {
+  font-size: clamp(11px, 2.8cqw, 14px);
+}
+.spectrum-scene .pm-speed-chart {
+  grid-area: chart;
+  height: 100%;
+  min-height: 0;
+}
+.spectrum-scene .pm-speed-plot {
+  min-height: 0;
+  border-radius: 7px;
+}
+.spectrum-scene .pm-speed-axis,
+.spectrum-scene .pm-speed-times {
+  font-size: 10px;
+}
+.spectrum-scene .pm-speed-times {
+  grid-area: scale;
+}
+.spectrum-scene .pm-speed-card dl {
+  grid-area: stats;
+  margin: 0;
+  padding-top: clamp(3px, 1.1cqh, 6px);
+}
+.spectrum-scene .pm-speed-card dt {
+  font-size: clamp(10px, 2.6cqw, 12px);
+}
+.spectrum-scene .pm-speed-card dd {
+  font-size: clamp(12px, 3.2cqw, 15px);
+  white-space: nowrap;
+}
+
+.sp-plate {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: clamp(4px, 1.5cqh, 9px);
+}
+.sp-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.sp-heading h3 {
+  margin: 0;
+  color: var(--sp-ink);
+  font-size: clamp(14px, 3.7cqw, 18px);
+  font-weight: 610;
+  letter-spacing: 0;
+}
+.sp-heading > span {
+  color: var(--sp-muted);
+  font-size: clamp(11px, 3cqw, 13px);
+}
+.sp-bands,
+.sp-hotspots ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.sp-bands {
+  display: flex;
+  border-radius: 9px;
+  background: #111c29;
+  padding: 2px;
+  color: var(--sp-muted);
+  font-size: clamp(10px, 2.7cqw, 12px);
+  white-space: nowrap;
+}
+.sp-bands li {
+  padding: 3px clamp(5px, 1.5cqw, 9px);
+  border-radius: 7px;
+}
+.sp-bands [aria-current='step'] {
+  background: #334d66;
+  color: #e2f0ff;
+  font-weight: 650;
+}
+.sp-graph {
+  display: grid;
+  grid-template: minmax(0, 1fr) auto / 3.1ch minmax(0, 1fr);
+  gap: 4px 6px;
+  color: var(--sp-muted);
+  font-size: clamp(10px, 2.65cqw, 12px);
+}
+.sp-strength,
+.sp-ticks,
+.sp-field {
+  position: relative;
+  min-height: 0;
+}
+.sp-graph small {
+  align-self: end;
+  font-size: inherit;
+}
+.sp-strength span,
+.sp-ticks span {
+  position: absolute;
+}
+.sp-strength span {
+  right: 0;
+  transform: translateY(-50%);
+}
+.sp-ticks {
+  min-height: 1.25em;
+}
+.sp-ticks span {
+  transform: translateX(-50%);
+}
+.sp-field {
+  overflow: clip;
+  border-radius: 7px;
+  background: #121f2e;
+  box-shadow: inset 0 0 0 1px #8eaac22b;
+}
+.sp-field svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.sp-grid line {
+  stroke: var(--sp-line);
+  opacity: 0.55;
+  vector-effect: non-scaling-stroke;
+}
+.sp-grid line[x1]:not([x1='0']) {
+  opacity: 0.25;
+}
+.sp-envelope {
+  fill-opacity: 0.14;
+  stroke-width: 2;
+  vector-effect: non-scaling-stroke;
+}
+.sp-sweep {
+  position: absolute;
+  inset: 0;
+  border-inline-end: 1px solid #d2f1feaa;
+  background: linear-gradient(90deg, transparent 86%, #a8e8ff24);
+  transform: translateX(calc(var(--sp-sweep) - 100%));
+  pointer-events: none;
+}
+.sp-hotspots ul {
+  display: grid;
+  grid-auto-rows: minmax(0, 1fr);
+}
+.sp-hotspots li {
+  display: grid;
+  grid-template-columns: 7px minmax(0, 1fr) 5ch 7ch;
+  align-items: center;
+  gap: clamp(5px, 1.8cqw, 12px);
+  border-top: 1px solid #8ca3b933;
+  font-size: clamp(12px, 3.2cqw, 15px);
+  white-space: nowrap;
+}
+.sp-hotspots li i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+.sp-hotspots li b {
+  font-weight: 580;
+}
+.sp-hotspots li span {
+  color: var(--sp-muted);
+  font-size: 0.9em;
+}
+.sp-hotspots li strong {
+  text-align: end;
+  font-weight: 525;
+}
+
+@container spectrum (min-height: 410px) {
+  .spectrum-scene .pm-speed-card {
+    grid-template: 'label' auto 'rate' auto 'chart' minmax(0, 1fr) 'scale' auto 'stats' auto / 1fr;
+  }
+}
+@container spectrum (min-width: 440px) {
+  .sp-throughput > :first-child,
+  .sp-spectrum {
+    margin-inline-end: 8%;
+  }
+  .sp-throughput > :last-child,
+  .sp-hotspots {
+    margin-inline-start: 8%;
+  }
+}

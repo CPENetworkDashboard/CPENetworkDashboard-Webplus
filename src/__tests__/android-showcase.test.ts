@@ -1,53 +1,136 @@
-import { afterEach, describe, expect, it } from 'vitest'
-import { defineComponent, ref } from 'vue'
-import { flushPromises, mount, type VueWrapper } from '@vue/test-utils'
+import { mount, flushPromises, type VueWrapper } from '@vue/test-utils'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import AndroidShowcase from '@/components/AndroidShowcase.vue'
-import type { AndroidView } from '@/androidTour'
+import { linkedScene } from '@/components/story/film'
 
-let wrapper: VueWrapper | undefined
-afterEach(() => wrapper?.unmount())
-function render() {
-  wrapper = mount(
-    defineComponent({
-      components: { AndroidShowcase },
-      setup: () => ({ view: ref<AndroidView>('connect') }),
-      template: '<AndroidShowcase :view="view" @select="view = $event" />',
-    })
+let view: VueWrapper | undefined
+let reduced = false
+let top = 0
+let clock = 0
+let frames: Map<number, FrameRequestCallback>
+let serial = 0
+let setVisible: (value: boolean) => void
+
+beforeEach(() => {
+  reduced = false
+  top = 0
+  clock = 0
+  frames = new Map()
+  vi.stubGlobal('matchMedia', () => ({
+    matches: reduced,
+    addEventListener() {},
+    removeEventListener() {},
+  }))
+  vi.stubGlobal('requestAnimationFrame', (cb: FrameRequestCallback) => {
+    frames.set(++serial, cb)
+    return serial
+  })
+  vi.stubGlobal('cancelAnimationFrame', (id: number) => frames.delete(id))
+  vi.stubGlobal(
+    'IntersectionObserver',
+    class {
+      constructor(cb: (entries: { isIntersecting: boolean }[]) => void) {
+        setVisible = (value) => cb([{ isIntersecting: value }])
+      }
+      observe() {
+        setVisible(true)
+      }
+      disconnect() {}
+    }
   )
-  return wrapper
+})
+afterEach(() => {
+  view?.unmount()
+  view = undefined
+  vi.unstubAllGlobals()
+})
+
+function render() {
+  view = mount(AndroidShowcase)
+  const track = view.element as HTMLElement
+  Object.defineProperty(track, 'offsetHeight', { value: 3500 })
+  vi.spyOn(track, 'getBoundingClientRect').mockImplementation(() => ({ top }) as DOMRect)
+  const stage = track.querySelector<HTMLElement>('.film-stage')
+  if (stage) {
+    Object.defineProperty(stage, 'clientHeight', { value: 500 })
+    Object.defineProperty(stage, 'offsetHeight', { value: 500 })
+  }
+  return view
+}
+async function advance(count = 1) {
+  for (let i = 0; i < count; i++) {
+    const pending = [...frames.values()]
+    frames.clear()
+    clock += 50
+    for (const cb of pending) cb(clock)
+  }
+  await flushPromises()
 }
 
-describe('interactive Android tour', () => {
-  it('updates the serving-cell metrics when the user changes carrier', async () => {
-    const view = render()
-    expect(view.get('.app-metrics').text()).toContain('N41')
-    await view.get('[aria-label="查看载波"] button:last-child').trigger('click')
-    expect(view.get('.app-metrics').text()).toContain('N78')
-    expect(view.get('.radio-metrics').text()).toContain('-87')
+describe('product presentation', () => {
+  it('opens on desktop, completes its take without input and holds the same frame until the visitor scrolls', async () => {
+    const page = render()
+    await advance()
+    expect(page.attributes('data-shot')).toBe('desktop-connect')
+    await advance(92)
+    expect(page.attributes('data-settled')).toBe('true')
+    expect(frames.size).toBe(0)
+    await advance(140)
+    expect(page.attributes('data-shot')).toBe('desktop-connect')
+    top = -1560
+    window.dispatchEvent(new Event('scroll'))
+    await advance()
+    expect(page.attributes('data-shot')).toBe('neighbors')
+    top = -1990
+    window.dispatchEvent(new Event('scroll'))
+    await advance()
+    expect(page.attributes('data-shot')).toBe('lock')
+    top = -475
+    window.dispatchEvent(new Event('scroll'))
+    await advance()
+    expect(page.attributes('data-shot')).toBe('desktop-lock')
+    expect(page.find('button, input, select, [tabindex], [role="tab"]').exists()).toBe(false)
   })
-
-  it('applies appearance changes in Settings when returning to Connection', async () => {
-    const view = render()
-    await view.get('.app-dock button:last-child').trigger('click')
-    await view.get('[aria-label="演示界面外观"] button:first-child').trigger('click')
-    await view.get('[aria-label="信号质量样式"] button:last-child').trigger('click')
-    await view.get('.app-dock button:first-of-type').trigger('click')
-    expect(view.get('.android-app').attributes('data-app-theme')).toBe('light')
-    expect(view.get('.radio-metrics').classes()).toContain('outlined')
+  it('suspends animation outside the viewport and removes the pending frame on unmount', async () => {
+    render()
+    await advance(3)
+    setVisible(false)
+    expect(frames.size).toBe(0)
+    window.dispatchEvent(new Event('scroll'))
+    expect(frames.size).toBe(0)
+    setVisible(true)
+    await advance()
+    expect(frames.size).toBe(1)
+    view!.unmount()
+    view = undefined
+    expect(frames.size).toBe(0)
   })
-
-  it('opens Wi-Fi from the test dock and shows the selected frequency range', async () => {
-    const view = render()
-    await view.get('.app-dock button:nth-of-type(3)').trigger('click')
-    await view.get('.app-stack .app-row:last-child').trigger('click')
+  it('shows all features in reading order when motion is reduced and preserves older shared scene names', async () => {
+    reduced = true
+    const page = render()
+    // The transcript mounts both lazy feature bundles at once. Wait for their actual imports.
+    await Promise.all([
+      import('@/components/story/RadioScene.vue'),
+      import('@/components/story/SpectrumScene.vue'),
+    ])
     await flushPromises()
-    // Async route panels load only when a visitor opens them.
-    await import('@/components/WifiChannelPreview.vue')
-    await flushPromises()
-    await view.get('.wifi-controls button:last-child').trigger('click')
-    expect(view.get('.wifi-plot').attributes('aria-label')).toContain('6 GHz')
-    expect(view.get('.wifi-readings').text()).toContain('Office-6E')
-    await view.get('[aria-label="返回测试"]').trigger('click')
-    expect(view.get('.android-app').attributes('data-screen')).toBe('tests')
+    expect(page.findAll('.sp-bands li').map((band) => band.text().replace(/\s/g, ''))).toEqual([
+      '2.4GHz',
+      '5GHz',
+    ])
+    expect(page.findAll('.film-transcript > article').map((el) => el.attributes('id'))).toEqual([
+      'film-desktop-connect',
+      'film-desktop-lock',
+      'film-desktop-test',
+      'film-connect',
+      'film-neighbors',
+      'film-lock',
+      'film-speed',
+      'film-wifi',
+    ])
+    expect(frames.size).toBe(0)
+    expect(linkedScene('lock')).toBe('lock')
+    expect(linkedScene('tests')).toBe('speed')
+    expect(linkedScene('bogus')).toBeUndefined()
   })
 })

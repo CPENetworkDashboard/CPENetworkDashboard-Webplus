@@ -34,7 +34,7 @@ export const androidFeatures = [
     label: 'Wi-Fi 信道',
     icon: 'wifi',
     title: '看清附近热点占用的信道',
-    copy: '选择 2.4、5 或 6 GHz，观察曲线重叠的位置，对照热点的信道和信号强度。',
+    copy: '查看 2.4 GHz 和 5 GHz，观察曲线重叠的位置，对照热点的信道和信号强度。',
   },
 ] as const
 const otherViews = [
