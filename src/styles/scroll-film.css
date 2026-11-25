@@ -1,9 +1,10 @@
 /* A native scroll track holds a single composition in view. Each marker is one camera stop. */
 .scroll-film {
   --film-top: 64px;
-  --stage-height: calc(100svh - var(--film-top));
+  --stage-height: calc(100vh - var(--film-top));
+  --stage-height: calc(100dvh - var(--film-top));
   --shot-stride: clamp(430px, 73svh, 820px);
-  --mist: #445e80;
+  --mist: #3a5274;
   position: relative;
   isolation: isolate;
   height: calc(var(--stage-height) + var(--film-length) * var(--shot-stride));
@@ -27,14 +28,16 @@
   z-index: -2;
   pointer-events: none;
   background:
-    radial-gradient(ellipse 65% 110% at 78% 26%, var(--mist), transparent 78%),
+    radial-gradient(ellipse 62% 100% at 77% 40%, var(--mist), transparent 78%),
+    radial-gradient(ellipse 35% 60% at 64% 95%, #2a405d, transparent 80%),
     linear-gradient(118deg, #101a26 5%, #1a2c40 57%, #152334);
 }
 .scroll-film[data-shot='neighbors'] {
   --mist: #384d69;
 }
-.scroll-film[data-shot='speed'] {
-  --mist: #586e8b;
+.scroll-film[data-shot='speed'],
+.scroll-film[data-shot='settings'] {
+  --mist: #485c78;
 }
 .scroll-film[data-shot='wifi'] {
   --mist: #3f6275;
@@ -119,6 +122,9 @@
   display: grid;
   grid-template-rows: minmax(0, 1fr) auto;
   height: min(100%, clamp(380px, 64svh, 570px));
+}
+.scroll-film[data-platform='android'] .film-figure {
+  height: min(100%, 704px);
 }
 .film-visual {
   position: relative;
@@ -269,10 +275,10 @@
     grid-template-columns: minmax(0, 1fr);
     grid-template-rows: auto minmax(0, 1fr) auto;
     gap: 8px;
-    padding-block: 18px 12px;
+    padding-block: 12px max(9px, env(safe-area-inset-bottom));
   }
   .film-home .film-sheet {
-    padding-top: 76px;
+    padding-top: 66px;
   }
   .film-label {
     margin: 0 0 6px;
@@ -300,9 +306,24 @@
   }
   .film-figure {
     height: 100%;
-    max-height: 510px;
     width: 100%;
     align-self: center;
+  }
+  .film-art {
+    transform: translateY(calc(4px * (1 - var(--travel))))
+      scale(calc(0.985 + 0.015 * var(--travel)));
+  }
+  .scroll-film[data-platform='android'] .film-figure {
+    height: 100%;
+  }
+  .film-orbits i {
+    width: 95%;
+  }
+  .film-orbits i:nth-child(2) {
+    width: 120%;
+  }
+  .film-orbits i:last-child {
+    width: 145%;
   }
   .film-foot {
     padding-top: 0;
@@ -363,6 +384,9 @@
 .film-still {
   height: clamp(270px, 33vw, 420px);
 }
+.film-still-android {
+  height: clamp(390px, 48vw, 620px);
+}
 @media (max-width: 760px) {
   .film-transcript article {
     grid-template-columns: minmax(0, 1fr);
@@ -370,6 +394,9 @@
   }
   .film-still {
     height: clamp(270px, 73vw, 390px);
+  }
+  .film-still-android {
+    height: clamp(405px, 145vw, 565px);
   }
 }
 .product-guide-intro {

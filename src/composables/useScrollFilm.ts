@@ -20,8 +20,7 @@ export function useScrollFilm(
     dirty = true,
     frame = 0
   let take = 0,
-    previous = 0,
-    lastPaint = 0
+    previous = 0
 
   function measure() {
     const root = track.value,
@@ -53,10 +52,9 @@ export function useScrollFilm(
     if (dirty) measure()
     if (previous) take = Math.min(1, take + Math.min(100, now - previous) / duration)
     previous = now
-    if (dirty || now - lastPaint >= 1000 / 24 || take === 1) {
-      progress.value = Math.round(take * 150) / 150
-      lastPaint = now
-    }
+    // Chart samples and labels update only when their own value changes.
+    // Keep the phone's camera attached to the display refresh rate during the take.
+    progress.value = take
     dirty = false
     if (take < 1) frame = requestAnimationFrame(play)
     else previous = 0

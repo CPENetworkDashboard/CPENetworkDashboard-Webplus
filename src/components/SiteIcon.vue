@@ -2,6 +2,8 @@
 defineProps<{ name: string; size?: number }>()
 
 const paths: Record<string, string> = {
+  back: 'M20 12H4m7-7-7 7 7 7',
+  wallpaper: 'M4 4h16v16H4zM4 16l5-5 4 4 3-3 4 4M15 8h.01',
   home: 'M3 11 12 3l9 8v9h-6v-6H9v6H3z',
   lock: 'M7 10V7a5 5 0 0 1 10 0M5 10h14v10H5z',
   timer: 'M10 2h4m-2 5v5m8 1a8 8 0 1 1-16 0 8 8 0 0 1 16 0Z',

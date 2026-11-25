@@ -9,14 +9,15 @@ import '@/styles/scroll-film.css'
 const props = defineProps<{ home?: boolean }>()
 const chapters = props.home
   ? allChapters.filter((chapter) =>
-      ['desktop-connect', 'desktop-lock', 'neighbors', 'speed', 'wifi'].includes(chapter.scene)
+      ['connect', 'neighbors', 'lock', 'speed', 'wifi', 'desktop-connect'].includes(chapter.scene)
     )
   : allChapters
-const mobileIndex = chapters.findIndex((chapter) => chapter.platform === 'Android')
+const desktopIndex = chapters.findIndex((chapter) => chapter.platform === 'macOS / Windows')
 const track = ref<HTMLElement | null>(null)
 const stage = ref<HTMLElement | null>(null)
 const { active, progress, position, reduced } = useScrollFilm(track, stage, chapters.length)
 const shot = computed(() => chapters[active.value]!)
+const platform = computed(() => (shot.value.platform === 'Android' ? 'android' : 'desktop'))
 const camera = computed(() => {
   const within = position.value - active.value
   return {
@@ -27,7 +28,9 @@ const camera = computed(() => {
   }
 })
 function platformAnchor(index: number) {
-  return index === 0 ? 'desktop' : index === mobileIndex ? 'mobile' : undefined
+  if (index === 0) return 'mobile'
+  if (index === desktopIndex) return 'desktop'
+  return undefined
 }
 </script>
 <template>
@@ -36,6 +39,7 @@ function platformAnchor(index: number) {
     class="scroll-film"
     :class="{ 'film-static': reduced, 'film-home': home }"
     :data-shot="shot.scene"
+    :data-platform="platform"
     :data-settled="progress === 1"
     :style="camera"
     aria-label="CPE加加产品展示"
@@ -47,14 +51,14 @@ function platformAnchor(index: number) {
           <div :key="shot.scene" class="film-script">
             <p class="film-label">
               {{ home && active === 0 ? 'CPE加加' : shot.platform }}
-              <span aria-hidden="true">/</span> {{ home && active === 0 ? 'CPE++' : shot.label }}
+              <span aria-hidden="true">/</span> {{ home && active === 0 ? 'Android' : shot.label }}
             </p>
             <h1 v-if="home && active === 0" id="home-title">看清信号，<br />再调频段。</h1>
             <h2 v-else>{{ shot.heading }}</h2>
             <p class="film-description">
               {{
                 home && active === 0
-                  ? '查看 4G / 5G 小区与射频质量，选择驻留频段，再用测试结果验证链路。'
+                  ? '查看 4G / 5G 小区，管理频段与邻区，在同一个 App 里验证网速。'
                   : shot.copy
               }}
             </p>
@@ -67,7 +71,7 @@ function platformAnchor(index: number) {
           <figure class="film-figure" :aria-label="shot.caption + '，示例数据'">
             <div class="film-visual" aria-hidden="true">
               <div class="film-orbits"><i></i><i></i><i></i></div>
-              <div :key="shot.scene" class="film-art">
+              <div :key="platform" class="film-art">
                 <FilmArtwork :scene="shot.scene" :progress />
               </div>
             </div>
@@ -126,7 +130,11 @@ function platformAnchor(index: number) {
           <p>{{ item.copy }}</p>
         </div>
         <figure :aria-label="item.caption + '，示例数据'">
-          <div class="film-still" aria-hidden="true">
+          <div
+            class="film-still"
+            :class="{ 'film-still-android': item.platform === 'Android' }"
+            aria-hidden="true"
+          >
             <FilmArtwork :scene="item.scene" :progress="1" />
           </div>
           <figcaption>{{ item.caption }} · 示例数据</figcaption>

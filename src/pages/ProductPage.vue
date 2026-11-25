@@ -20,8 +20,8 @@ const filteredDevices = computed(() =>
         <h1>产品功能</h1>
       </div>
       <nav class="guide-index" aria-label="产品目录">
-        <RouterLink :to="{ path: '/product', hash: '#desktop' }">桌面端</RouterLink>
         <RouterLink :to="{ path: '/product', hash: '#mobile' }">Android</RouterLink>
+        <RouterLink :to="{ path: '/product', hash: '#desktop' }">桌面端</RouterLink>
         <RouterLink :to="{ path: '/product', hash: '#devices' }">设备兼容性</RouterLink>
       </nav>
     </header>

@@ -1,242 +1,314 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { cellFacts, finalRadio } from './data'
-import { clamp, level, score, span } from './quality'
-import { radioNeighbors } from './PhoneNeighbors.vue'
+import { deviceStats, radioNeighbors } from '@/data/androidPreview'
+import SiteIcon from '../SiteIcon.vue'
+import { cellFacts, finalPower, finalRadio } from './data'
+import { level, score, span } from './quality'
 import '@/styles/radio-scene.css'
 
 const props = defineProps<{
-  scene: 'connect' | 'neighbors' | 'lock'
+  scene: 'connect' | 'links' | 'neighbors' | 'lock' | 'tests' | 'settings'
   progress: number
 }>()
-const progress = computed(() => clamp(Number.isFinite(props.progress) ? props.progress : 0))
 
-// Sample a shot at an absolute time so scrolling backwards and seeking produce the same frame.
-function cue(start: number, end: number) {
-  const t = span(progress.value, start, end)
-  return t * t * (3 - 2 * t)
-}
-
-// The two snapshots match AndroidConnection. Identity fields and RF readings switch together.
 const carriers = [
   {
     label: 'NR PCC',
-    facts: cellFacts.map(([, value]) => value),
+    type: 'P',
+    values: cellFacts.map(([, value]) => value),
     rf: finalRadio.map((metric) => Number(metric.value)),
   },
   {
-    label: 'NR SCC 1',
-    facts: ['N78', '636666', '221', '63587/1', '1347599', '80 MHz'],
+    label: 'NR SCC1',
+    type: 'S',
+    values: ['N78', '636666', '221', '', '', '80 MHz'],
     rf: [-87, -12, 21, -66, 14],
   },
 ] as const
-const carrierMix = computed(() => cue(0.43, 0.68))
-const carrier = computed(() => carriers[carrierMix.value < 0.5 ? 0 : 1])
-const separation = computed(() => 0.12 + 0.88 * cue(0.04, 0.38) * (1 - cue(0.63, 0.94)))
-const rfUnits = ['dBm', 'dB', 'dB', 'dBm', '']
-const rf = computed(() =>
+const aggregationFields = ['Type', 'Band', 'ARFCN', 'PCI', 'BW', 'RSRP', 'RSRQ', 'SINR']
+const carrier = computed(() => carriers[props.progress < 0.55 ? 0 : 1])
+const currentCell = computed(() =>
+  cellFacts
+    .map(([label], index) => ({ label, value: carrier.value.values[index] }))
+    .filter(({ value }) => value)
+)
+const carrierMenu = computed(() => props.progress >= 0.38 && props.progress < 0.55)
+const units = ['dBm', 'dB', 'dB', 'dBm', '']
+const readings = computed(() =>
   finalRadio.map(({ label }, index) => {
-    const value = carrier.value.rf[index]
+    const value = carrier.value.rf[index]!
     const quality = level(label, value)!
-    return { label, value, unit: rfUnits[index], quality, share: score[quality] * 100 + '%' }
+    return { label, value, quality, unit: units[index], fill: score[quality] }
   })
 )
-
-const neighbors = radioNeighbors.map((cell) => ({
-  ...cell,
-  displayPci: cell.pci + '/' + (Number(cell.pci) % 3),
-}))
-const neighborPosition = computed(() => cue(0.22, 0.42) + cue(0.55, 0.78))
-const neighborIndex = computed(() => Math.round(neighborPosition.value))
-const neighbor = computed(() => neighbors[neighborIndex.value])
-const deviceStats = [
-  ['WLAN接入', '1'],
-  ['当日流量', '54.22 MB'],
+const tests = [
+  ['Ping', '就绪', 'activity'],
+  ['测速', '就绪', 'timer'],
+  ['路由测试', '就绪', 'globe'],
+  ['会话数', '就绪', 'signal'],
+  ['Wi-Fi 信道', '周边扫描', 'wifi'],
 ] as const
-
-const bandGroups = [
-  {
-    name: 'LTE',
-    bands: ['B1', 'B3', 'B5', 'B7', 'B8', 'B20', 'B28', 'B38', 'B40', 'B41', 'B42', 'B43'],
-  },
-  {
-    name: 'NR',
-    bands: ['N1', 'N3', 'N5', 'N7', 'N8', 'N20', 'N28', 'N38', 'N40', 'N41', 'N77', 'N78'],
-  },
-] as const
-const roleMix = computed(() => cue(0.31, 0.53))
-const secondaryRole = computed(() => roleMix.value >= 0.5)
-const bandReveal = computed(() => cue(0.57, 0.78))
+const currentNeighbor = computed(() => Math.min(2, Math.floor(props.progress * 3)))
+const lockTabs = ['网络首选', '锁频段', '锁频点', '锁小区']
+const bandGroups = {
+  LTE: ['B1', 'B3', 'B5', 'B7', 'B8', 'B20', 'B28', 'B38', 'B40', 'B41', 'B42', 'B43'],
+  NR: ['N1', 'N3', 'N5', 'N7', 'N8', 'N20', 'N28', 'N38', 'N40', 'N41', 'N77', 'N78'],
+}
+const secondaryRole = computed(() => props.progress > 0.43)
 const selectedBand = computed(() =>
-  secondaryRole.value ? (bandReveal.value > 0 ? 'N78' : '') : 'B8'
+  secondaryRole.value ? (props.progress > 0.56 ? 'N78' : '') : 'B8'
 )
-const bandStatus = computed(() => {
-  if (!secondaryRole.value) return '已选频段'
-  if (!selectedBand.value) return '待选择频段'
-  return progress.value < 0.86 ? '已选频段' : '已应用'
-})
+const applying = computed(() => props.progress >= 0.7 && props.progress < 0.87)
+const applied = computed(() => props.progress >= 0.87)
+const settingsDetail = computed(() => props.progress >= 0.24)
+const styleLight = computed(() => props.progress >= 0.56)
+const highlight = computed(() => span(props.progress, 0.06, 0.35))
 </script>
 
 <template>
   <div class="radio-scene" :data-radio-scene="scene">
-    <div
-      v-if="scene === 'connect'"
-      class="rs-board rs-connect"
-      :data-carrier="carrier.label"
-      :style="{ '--rs-depth': separation, '--rs-carrier': carrierMix }"
-    >
-      <div class="rs-deck">
-        <section class="rs-plate rs-network">
-          <div><small>中国移动 · 46000</small><strong>5G SA</strong></div>
-          <span class="rs-online"
-            ><i class="rs-signal" aria-hidden="true"><b></b><b></b><b></b><b></b></i
-            >蜂窝已连接</span
-          >
-        </section>
-        <section class="rs-plate rs-cell">
-          <div class="rs-heading">
-            <h3>当前小区</h3>
-            <span class="rs-carriers">
-              <b v-for="item in carriers" :key="item.label" :data-active="carrier === item">{{
-                item.label
-              }}</b>
-            </span>
-          </div>
-          <dl class="rs-cell-facts">
-            <div v-for="([label], index) in cellFacts" :key="label">
-              <dt>{{ label }}</dt>
-              <dd>{{ carrier.facts[index] }}</dd>
+    <template v-if="scene === 'connect'">
+      <section class="android-card rs-overview" :data-menu="carrierMenu">
+        <header class="rs-operator">
+          <b>中国移动 5G SA</b>
+          <SiteIcon name="chevron" :size="13" />
+          <div class="rs-signal"><i></i><i></i><i></i><i></i><strong>5G</strong></div>
+        </header>
+        <p>SIM卡AMBR 暂无数据 <span class="rs-ambr">获取</span></p>
+        <span class="rs-online"><i></i>蜂窝已连接</span>
+        <ul v-if="carrierMenu" class="rs-carrier-menu">
+          <li v-for="item in carriers" :key="item.label">
+            <div>
+              <b>{{ item.label }}</b
+              ><small>{{ item.values[0] }} · PCI {{ item.values[2] }}</small>
             </div>
-          </dl>
-        </section>
-        <section class="rs-plate rs-rf">
-          <div class="rs-heading">
-            <h3>射频质量</h3>
-            <small>{{ carrier.label }}</small>
+            <SiteIcon v-if="item === carrier" name="check" :size="14" />
+          </li>
+        </ul>
+      </section>
+      <section class="android-card rs-cell" :data-carrier="carrier.label">
+        <header class="android-card-heading">
+          <h3>当前小区（{{ carrier.label }}）</h3>
+        </header>
+        <dl class="rs-metrics rs-current-cell">
+          <div v-for="{ label, value } in currentCell" :key="label">
+            <dt>{{ label }}</dt>
+            <dd>{{ value }}</dd>
           </div>
-          <dl class="rs-rf-readings">
-            <div
-              v-for="metric in rf"
-              :key="metric.label"
-              :data-quality="metric.quality"
-              :style="{ '--rs-share': metric.share }"
-            >
-              <dt>{{ metric.label }}</dt>
-              <dd>
-                {{ metric.value }}<small v-if="metric.unit">{{ metric.unit }}</small>
-              </dd>
-              <i aria-hidden="true"></i>
-            </div>
-          </dl>
-        </section>
-      </div>
-    </div>
+        </dl>
+      </section>
+      <section class="android-card rs-rf">
+        <header class="android-card-heading">
+          <h3>射频质量（{{ carrier.label }}）</h3>
+        </header>
+        <dl class="rs-metrics rs-rf-readings">
+          <div v-for="metric in readings" :key="metric.label" :data-quality="metric.quality">
+            <dt>{{ metric.label }}</dt>
+            <dd>
+              {{ metric.value }}<small v-if="metric.unit">{{ metric.unit }}</small>
+            </dd>
+            <i :style="{ '--strength': metric.fill * (0.36 + 0.64 * highlight) }"></i>
+          </div>
+        </dl>
+      </section>
+    </template>
 
-    <div
-      v-else-if="scene === 'neighbors'"
-      class="rs-board rs-neighbors"
-      :data-pci="neighbor.pci"
-      :style="{ '--rs-position': neighborPosition }"
-    >
-      <section class="rs-plate rs-device">
-        <div><small>设备型号</small><strong>H153-381</strong></div>
-        <dl>
+    <template v-else-if="scene === 'links'">
+      <section class="android-card rs-ca">
+        <header class="android-card-heading">
+          <div>
+            <h3>载波聚合</h3>
+            <span>{{ carriers.length }}CC</span>
+          </div>
+          <SiteIcon name="chevron" :size="14" />
+        </header>
+        <table class="rs-ca-table">
+          <colgroup>
+            <col span="2" />
+            <col class="rs-ca-frequency" />
+            <col span="5" />
+            <col class="rs-ca-check" />
+          </colgroup>
+          <thead>
+            <tr>
+              <th v-for="label in aggregationFields" :key="label" scope="col">{{ label }}</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              v-for="(item, index) in carriers"
+              :key="item.label"
+              :data-current="index === (progress < 0.5 ? 0 : 1)"
+            >
+              <td>{{ item.type }}</td>
+              <td>{{ item.values[0] }}</td>
+              <td>{{ item.values[1] }}</td>
+              <td>{{ item.values[2] }}</td>
+              <td>{{ item.values[5]?.split(' ')[0] }}</td>
+              <td
+                v-for="(value, metricIndex) in item.rf.slice(0, 3)"
+                :key="metricIndex"
+                :data-quality="level(finalRadio[metricIndex]!.label, value)"
+              >
+                {{ value }}
+              </td>
+              <td><SiteIcon name="check" :size="12" /></td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+      <section class="android-card rs-power">
+        <header class="android-card-heading"><h3>当前功率（NR PCC）</h3></header>
+        <dl class="rs-metrics">
+          <div v-for="metric in finalPower" :key="metric.label">
+            <dt>{{ metric.label }}</dt>
+            <dd>{{ metric.value }}</dd>
+          </div>
+        </dl>
+      </section>
+      <section class="android-card rs-link">
+        <div>
+          <h3>下行链路（NR PCC）</h3>
+          <span>Mod 256QAM</span><span>MCS 24</span><span>RANK 2</span>
+        </div>
+        <div>
+          <h3>上行链路（NR PCC）</h3>
+          <span>Mod 64QAM</span><span>MCS 16</span>
+        </div>
+      </section>
+    </template>
+
+    <template v-else-if="scene === 'neighbors'">
+      <section class="android-card rs-device">
+        <header class="android-card-heading"><h3>设备信息</h3></header>
+        <dl class="rs-metrics rs-device-stats">
           <div v-for="[label, value] in deviceStats" :key="label">
             <dt>{{ label }}</dt>
             <dd>{{ value }}</dd>
           </div>
         </dl>
       </section>
-      <section class="rs-plate rs-neighbor-focus">
-        <div class="rs-heading">
-          <h3>邻区显示</h3>
-          <small>LTE · {{ neighbor.band }}</small>
-        </div>
-        <div class="rs-identity">
-          <div>
-            <small>PCI</small><strong>{{ neighbor.displayPci }}</strong>
-          </div>
-          <div>
-            <small>ARFCN</small><b>{{ neighbor.arfcn }}</b>
-          </div>
-          <div class="rs-pci-marks" aria-hidden="true">
-            <i
-              v-for="cell in neighbors"
-              :key="cell.pci"
-              :class="{ 'rs-current': cell.pci === neighbor.pci }"
-            ></i>
-          </div>
-        </div>
-        <dl class="rs-neighbor-rf">
-          <div data-quality="poor">
-            <dt>RSRP</dt>
-            <dd>{{ neighbor.rsrp }}<small>dBm</small></dd>
-          </div>
-          <div :data-quality="level('RSRQ', Number(neighbor.rsrq))">
-            <dt>RSRQ</dt>
-            <dd>{{ neighbor.rsrq }}<small>dB</small></dd>
-          </div>
-          <div>
-            <dt>SINR</dt>
-            <dd>--</dd>
-          </div>
-        </dl>
-      </section>
-      <div class="rs-plate rs-neighbor-table" role="table" aria-label="B8 邻区信号对照">
-        <div class="rs-table-head" role="row">
-          <span
-            v-for="label in ['Band', 'ARFCN', 'PCI', 'RSRP']"
-            :key="label"
-            role="columnheader"
-            >{{ label }}</span
-          >
-        </div>
-        <div class="rs-tracks" role="rowgroup">
-          <div
-            v-for="(cell, index) in neighbors"
+      <section class="android-card rs-neighbors" :data-pci="radioNeighbors[currentNeighbor]!.pci">
+        <header class="android-card-heading"><h3>邻区显示</h3></header>
+        <p>点击条目可确认锁小区</p>
+        <ul class="rs-neighbor-list">
+          <li
+            v-for="(cell, index) in radioNeighbors"
             :key="cell.pci"
-            class="rs-track"
-            role="row"
-            :data-active="index === neighborIndex"
+            :data-current="index === currentNeighbor"
           >
-            <span role="cell">{{ cell.band }}</span
-            ><span role="cell">{{ cell.arfcn }}</span
-            ><b role="cell">{{ cell.displayPci }}</b
-            ><span role="cell">{{ cell.rsrp }}</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div
-      v-else
-      class="rs-board rs-lock"
-      :data-role="secondaryRole ? 'Scell' : 'Pcell+Scell'"
-      :style="{ '--rs-role': roleMix, '--rs-reveal': secondaryRole ? bandReveal : 1 }"
-    >
-      <section class="rs-plate rs-role">
-        <div class="rs-heading">
-          <h3>频段角色</h3>
-          <small>锁频段</small>
-        </div>
-        <div class="rs-roles">
-          <b :data-active="!secondaryRole">Pcell+Scell</b><b :data-active="secondaryRole">Scell</b>
-        </div>
+            <div>
+              <strong>{{ cell.band }}</strong
+              ><span
+                >ARFCN <b>{{ cell.arfcn }}</b></span
+              ><span
+                >PCI <b>{{ cell.pci }}/{{ Number(cell.pci) % 3 }}</b></span
+              ><b class="rs-overflow">···</b>
+            </div>
+            <div>
+              <span
+                >RSRP <b :data-quality="level('RSRP', Number(cell.rsrp))">{{ cell.rsrp }}</b></span
+              ><span
+                >RSRQ <b :data-quality="level('RSRQ', Number(cell.rsrq))">{{ cell.rsrq }}</b></span
+              ><span>SINR <b>--</b></span>
+            </div>
+          </li>
+        </ul>
       </section>
-      <div class="rs-plate rs-spectrum">
-        <section v-for="group in bandGroups" :key="group.name" class="rs-band-group">
-          <h3>{{ group.name }} 频段</h3>
+    </template>
+
+    <template v-else-if="scene === 'lock'">
+      <ul class="rs-lock-tabs">
+        <li v-for="(tab, index) in lockTabs" :key="tab" :data-current="index === 1">{{ tab }}</li>
+      </ul>
+      <section class="android-card rs-lock" :data-role="secondaryRole ? 'Scell' : 'Pcell+Scell'">
+        <header class="android-card-heading"><h3>频段角色</h3></header>
+        <div class="rs-roles">
+          <span :data-current="!secondaryRole">Pcell+Scell</span>
+          <span :data-current="secondaryRole">Scell</span>
+        </div>
+        <p>
+          {{ secondaryRole ? '选择仅作为辅小区使用的频段' : '选择可作为主小区或辅小区使用的频段' }}
+        </p>
+        <section v-for="(options, group) in bandGroups" :key="group" class="rs-band-group">
+          <h4>{{ group }} 频段</h4>
           <ul class="rs-band-grid">
-            <li v-for="band in group.bands" :key="band" :data-selected="band === selectedBand">
-              <i v-if="band === selectedBand" aria-hidden="true"></i>{{ band }}
+            <li v-for="band in options" :key="band" :data-selected="band === selectedBand">
+              <SiteIcon v-if="band === selectedBand" name="check" :size="13" />{{ band }}
             </li>
           </ul>
         </section>
+      </section>
+      <div class="rs-lock-actions">
+        <span :data-applying="applying">{{ applying ? '处理中' : '应用' }}</span
+        ><span>清空</span>
       </div>
-      <div class="rs-plate rs-lock-state">
-        <span>{{ bandStatus }}</span
-        ><b>{{ secondaryRole ? 'Scell' : 'Pcell+Scell' }}<em> / </em>{{ selectedBand || '—' }}</b>
-      </div>
+      <p v-if="applied" class="rs-lock-result"><SiteIcon name="check" :size="14" />锁频段 成功</p>
+    </template>
+
+    <template v-else-if="scene === 'tests'">
+      <h3 class="rs-page-title">测试</h3>
+      <section class="android-card rs-test-menu">
+        <header class="android-card-heading"><h3>网络诊断</h3></header>
+        <ul class="rs-list">
+          <li
+            v-for="[title, status, icon] in tests"
+            :key="title"
+            :data-current="title === '测速' && progress > 0.45"
+          >
+            <SiteIcon :name="icon" :size="17" /><b>{{ title }}</b
+            ><span>{{ status }}</span
+            ><SiteIcon class="rs-row-chevron" name="chevron" :size="12" />
+          </li>
+        </ul>
+      </section>
+    </template>
+
+    <template v-else-if="!settingsDetail">
+      <h3 class="rs-page-title">设置</h3>
+      <section class="android-card rs-setting-home">
+        <header class="android-card-heading"><h3>设备</h3></header>
+        <div><b>华为</b><span>已登录</span></div>
+      </section>
+      <section class="android-card rs-setting-home">
+        <header class="android-card-heading"><h3>个性化</h3></header>
+        <ul class="rs-list">
+          <li>
+            <SiteIcon name="sliders" :size="17" /><b>展示设置</b
+            ><SiteIcon class="rs-row-chevron" name="chevron" :size="12" />
+          </li>
+          <li data-current="true">
+            <SiteIcon name="settings" :size="17" /><b>界面风格</b
+            ><SiteIcon class="rs-row-chevron" name="chevron" :size="12" />
+          </li>
+        </ul>
+      </section>
+    </template>
+
+    <div v-else class="rs-appearance">
+      <section class="android-card rs-theme-mode">
+        <h3>颜色模式</h3>
+        <span
+          >{{ styleLight ? '浅色模式' : '跟随系统' }} <SiteIcon name="chevron" :size="13"
+        /></span>
+        <p>{{ styleLight ? '始终使用浅色外观' : '根据系统的深色模式设置自动切换' }}</p>
+      </section>
+      <section class="android-card rs-wallpaper">
+        <header class="android-card-heading"><h3>页面壁纸</h3></header>
+        <div class="rs-wallpaper-preview">
+          <i><SiteIcon name="wallpaper" :size="26" /></i><span>选择图片</span>
+        </div>
+      </section>
+      <section class="android-card rs-theme-mode">
+        <h3>底部导航栏样式</h3>
+        <span>液态玻璃 <SiteIcon name="chevron" :size="13" /></span>
+        <p>支持饱和度增强、模糊与透镜折射</p>
+      </section>
+      <section class="android-card rs-style-card">
+        <header class="android-card-heading"><h3>卡片外观</h3></header>
+        <div><span>卡片模糊</span><i></i></div>
+      </section>
     </div>
   </div>
 </template>

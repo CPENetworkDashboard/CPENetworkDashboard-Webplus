@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, nextTick, onDeactivated, reactive, ref, useId, watch } from 'vue'
 import type { CellTarget } from '@/androidTour'
-import { radioNeighbors } from './story/PhoneNeighbors.vue'
+import { radioNeighbors } from '@/data/androidPreview'
 
 const props = defineProps<{ target?: CellTarget }>()
 const tabs = { network: '网络首选', bands: '锁频段', arfcn: '锁频点', cell: '锁小区' } as const

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { speedDuration, speedFrame } from '@/data/speedTrace'
+import { sessionTraffic, speedDuration, speedFrame } from '@/data/speedTrace'
 import { bands, plotWidth, signalY, wifiPlot } from '@/data/wifiSpectrum'
 import SpeedRealtimeCard, { formatSpeedNumber, SPEED_CHART_SECONDS } from './SpeedRealtimeCard.vue'
 import '@/styles/spectrum-scene.css'
@@ -14,14 +14,18 @@ const position = computed(() =>
 const samplesShown = computed(() =>
   Math.min(SPEED_CHART_SECONDS, 1 + Math.floor(position.value * SPEED_CHART_SECONDS))
 )
-const cards = computed(() => {
-  const second = speedDuration - SPEED_CHART_SECONDS + samplesShown.value
-  return speedFrame(second, samplesShown.value).map((card) => ({
+const second = computed(() => speedDuration - SPEED_CHART_SECONDS + samplesShown.value)
+const cards = computed(() =>
+  speedFrame(second.value, samplesShown.value).map((card) => ({
     ...card,
     rate: formatSpeedNumber(card.rate),
     average: formatSpeedNumber(card.average) + ' Mbps',
     peak: formatSpeedNumber(card.peak) + ' Mbps',
   }))
+)
+const elapsed = computed(() => {
+  const minutes = Math.floor(second.value / 60)
+  return String(minutes).padStart(2, '0') + ':' + String(second.value % 60).padStart(2, '0')
 })
 
 const bandIndex = computed(() =>
@@ -37,9 +41,27 @@ const levels = [-40, -60, -80] as const
 <template>
   <div class="spectrum-scene" :data-scene="scene">
     <div v-if="scene === 'speed'" class="sp-throughput" aria-label="最近 30 秒的双向测速示例">
+      <div class="sp-status">
+        <span><i></i>双向中</span>
+      </div>
       <SpeedRealtimeCard v-for="card in cards" :key="card.direction" v-bind="card" />
+      <dl class="sp-session">
+        <div>
+          <dt>总流量</dt>
+          <dd>{{ sessionTraffic(second) }}</dd>
+        </div>
+        <div>
+          <dt>用时</dt>
+          <dd>{{ elapsed }}</dd>
+        </div>
+        <div>
+          <dt>测试节点</dt>
+          <dd>雷霆打流</dd>
+        </div>
+      </dl>
     </div>
     <div v-else class="sp-wifi" :data-band="band" :style="{ '--sp-sweep': sweep }">
+      <div class="sp-view-mode"><span>SSID 列表</span><b>频道健康</b></div>
       <section v-memo="[band]" class="sp-plate sp-spectrum">
         <header class="sp-heading">
           <h3>信道占用</h3>

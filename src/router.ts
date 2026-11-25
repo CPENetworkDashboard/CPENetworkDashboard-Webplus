@@ -56,20 +56,21 @@ export const router = createRouter({
   routes,
   scrollBehavior(to, from, savedPosition) {
     if (savedPosition) return savedPosition
-    if (to.hash) {
-      const section = document.getElementById(to.hash.slice(1))
-      if (section) return { el: section, top: 76, behavior: 'instant' }
-    }
     const scene = to.path === '/product' ? linkedScene(to.query.view) : undefined
-    if (scene && (scene !== linkedScene(from.query.view) || from.path !== to.path || from.hash)) {
-      const marker = document.getElementById('film-' + scene)
-      if (marker) {
-        const stage = document.querySelector('.film-stage')
+    const sceneChanged =
+      scene !== linkedScene(from.query.view) || from.path !== to.path || from.hash
+    const target = to.hash.slice(1) || (scene && sceneChanged ? 'film-' + scene : '')
+    if (target) {
+      const section = document.getElementById(target)
+      if (section) {
+        const stage = section.closest('.film-anchor')?.parentElement?.querySelector('.film-stage')
+        // Seek to the sticky viewport's own edge, not the general section margin.
         const top = stage ? parseFloat(getComputedStyle(stage).top) || 0 : 76
-        return { el: marker, top, behavior: 'instant' }
+        return { el: section, top, behavior: 'instant' }
       }
     }
-    if (to.path === from.path && to.hash === from.hash) return false
+    const leavingFilmLink = to.path === '/product' && Boolean(linkedScene(from.query.view))
+    if (to.path === from.path && to.hash === from.hash && !leavingFilmLink) return false
     return { top: 0, behavior: 'instant' }
   },
 })

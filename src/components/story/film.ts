@@ -1,5 +1,69 @@
 export const chapters = [
   {
+    scene: 'connect',
+    platform: 'Android',
+    label: '连接',
+    heading: '连接与射频质量',
+    copy: '在同一块看板上切换主、辅载波。当前小区的频段、PCI 和射频读数随之更新。',
+    caption: '连接看板 · 主载波与辅载波',
+  },
+  {
+    scene: 'links',
+    platform: 'Android',
+    label: '链路',
+    heading: '载波聚合与上下行链路',
+    copy: '从 PCC、SCC 的频段与带宽，到发射功率、调制和 MCS，沿着连接页继续查看。',
+    caption: '连接看板 · 载波聚合与链路',
+  },
+  {
+    scene: 'neighbors',
+    platform: 'Android',
+    label: '邻区',
+    heading: '同一频点，三个邻区',
+    copy: 'H153-381 在 LTE B8 上报告了三个邻区。它们的频点都是 3740，PCI 和接收功率各不相同。',
+    caption: '华为 H153-381 · 设备信息与邻区',
+  },
+  {
+    scene: 'lock',
+    platform: 'Android',
+    label: '锁频',
+    heading: '分别配置主辅小区',
+    copy: '在 LTE 和 NR 频段里，分别选择主小区和辅小区可以使用的频段。',
+    caption: '锁频段 · Pcell+Scell / Scell',
+  },
+  {
+    scene: 'tests',
+    platform: 'Android',
+    label: '测试',
+    heading: '从测试页进入网络诊断',
+    copy: 'Ping、测速、路由测试、会话数和 Wi-Fi 信道都能从这里打开。',
+    caption: '测试 · 网络诊断',
+  },
+  {
+    scene: 'speed',
+    platform: 'Android',
+    label: '测速',
+    heading: '双向测速',
+    copy: '下载和上传各有一条最近 30 秒的速率曲线。平均值、平滑峰值和流量记录了整次测试的表现。',
+    caption: '测速 · 下载与上传',
+  },
+  {
+    scene: 'wifi',
+    platform: 'Android',
+    label: 'Wi-Fi',
+    heading: '附近的 Wi-Fi 信道',
+    copy: '在 2.4 GHz 和 5 GHz 两个频段上观察附近热点。曲线重叠处可以看出多个热点共用的频谱。',
+    caption: 'Wi-Fi 信道 · 频道健康',
+  },
+  {
+    scene: 'settings',
+    platform: 'Android',
+    label: '外观',
+    heading: '界面风格',
+    copy: '颜色模式、页面壁纸、底部导航栏样式和卡片外观均可以单独调整。',
+    caption: '设置 · 界面风格',
+  },
+  {
     scene: 'desktop-connect',
     platform: 'macOS / Windows',
     label: '看板',
@@ -23,52 +87,10 @@ export const chapters = [
     copy: '逐次绘出往返时延，在测试结束时比较平均值和峰值。',
     caption: '桌面链路测试 · Ping 记录',
   },
-  {
-    scene: 'connect',
-    platform: 'Android',
-    label: '连接',
-    heading: '连接与射频质量',
-    copy: '同一台 CPE 上，主载波和辅载波各有一组读数。连接看板并列展示频段、PCI、RSRP 和 SINR。',
-    caption: '连接看板 · 主载波与辅载波',
-  },
-  {
-    scene: 'neighbors',
-    platform: 'Android',
-    label: '邻区',
-    heading: '同一频点，三个邻区',
-    copy: 'H153-381 在 LTE B8 上报告了三个邻区。它们的频点都是 3740，PCI 和接收功率各不相同。',
-    caption: '华为 H153-381 · 邻区显示',
-  },
-  {
-    scene: 'lock',
-    platform: 'Android',
-    label: '锁频',
-    heading: '分别配置主辅小区',
-    copy: '先指定频段角色，再选择 LTE 或 NR 频段。B8 用于主小区或辅小区，Scell 角色可以单独配置。',
-    caption: '锁频段 · Pcell+Scell / Scell',
-  },
-  {
-    scene: 'speed',
-    platform: 'Android',
-    label: '测速',
-    heading: '双向测速',
-    copy: '上下行各有一条最近 30 秒的速率曲线。平均值、平滑峰值和流量记录了整次测试的表现。',
-    caption: '测速 · 下载与上传',
-  },
-  {
-    scene: 'wifi',
-    platform: 'Android',
-    label: 'Wi-Fi',
-    heading: '附近的 Wi-Fi 信道',
-    copy: '在 2.4 GHz 和 5 GHz 两个频段上观察附近热点。曲线重叠的地方，是多个热点共用的频谱。',
-    caption: 'Wi-Fi 信道 · 周边热点',
-  },
 ] as const
 export type SceneId = (typeof chapters)[number]['scene']
 
 /** Older shared product URLs still open the corresponding shot. */
 export function linkedScene(view: unknown): SceneId | undefined {
-  if (view === 'tests') return 'speed'
-  if (view === 'settings') return 'connect'
   return chapters.find((chapter) => chapter.scene === view)?.scene
 }

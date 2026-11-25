@@ -1,35 +1,10 @@
-<script lang="ts">
-import '@/styles/android-radio.css'
-
-// Android displays LTE PCI together with PCI mod 3. Lock targets use the PCI alone.
-export const radioNeighbors = [
-  { band: 'B8', arfcn: '3740', pci: '42', rsrp: '-104', rsrq: '-12' },
-  { band: 'B8', arfcn: '3740', pci: '265', rsrp: '-109', rsrq: '-18' },
-  { band: 'B8', arfcn: '3740', pci: '73', rsrp: '-109', rsrq: '-18' },
-] as const
-</script>
-
 <script setup lang="ts">
 import { nextTick, onDeactivated, onMounted, ref, useId } from 'vue'
 import type { CellTarget } from '@/androidTour'
+import { deviceStats as stats, radioNeighbors } from '@/data/androidPreview'
+import '@/styles/android-radio.css'
 
 const emit = defineEmits<{ lock: [target: CellTarget] }>()
-const stats = [
-  ['设备型号', 'H153-381'],
-  ['WLAN接入', '1'],
-  ['当日流量', '54.22 MB'],
-  ['软件版本', 'H6623SP2C233'],
-  ['上次清空日期', '2026-11-16'],
-  ['下载速率', '0.00 Mbps'],
-  ['上传速率', '0.00 Mbps'],
-  ['本次下载', '18.88 MB'],
-  ['本次上传', '34.34 MB'],
-  ['本月下载', '9.41 GB'],
-  ['本月上传', '931.59 MB'],
-  ['累计连接', '4天 1时 31分'],
-  ['本次连接', '0天 0时 1分'],
-] as const
-
 const root = ref<HTMLElement>()
 const confirmationId = useId()
 const selected = ref<CellTarget>()
