@@ -25,10 +25,10 @@
     background-color 0.4s ease;
 }
 .pm-screen {
-  --p-bg: #111214;
-  --p-card: #222327;
+  --p-bg: #0b0e14;
+  --p-card: #17191f;
   --p-card-line: rgba(255, 255, 255, 0.06);
-  --p-tile: rgba(43, 44, 48, 0.96);
+  --p-tile: rgba(30, 33, 39, 0.98);
   --p-tile-line: rgba(255, 255, 255, 0.14);
   --p-title: #9cc8ff;
   --p-text: #eceef2;
@@ -38,6 +38,7 @@
   --p-track: rgba(255, 255, 255, 0.12);
   --p-tabs: #20252b;
   --p-ok: #30d158;
+  --p-danger: #ff8a80;
   --q-excellent: #7ae0a1;
   --q-good: #67d7d1;
   --q-fair: #ffcb6b;
@@ -61,7 +62,7 @@
   overflow: hidden;
 }
 .pm-screen.light {
-  --p-bg: #f3f4f6;
+  --p-bg: #f4f7fb;
   --p-card: #ffffff;
   --p-card-line: rgba(0, 0, 0, 0.04);
   --p-tile: rgba(255, 255, 255, 0.9);
@@ -74,6 +75,7 @@
   --p-track: rgba(0, 0, 0, 0.1);
   --p-tabs: #f7f9fc;
   --p-ok: #248a3d;
+  --p-danger: #c24136;
   --q-excellent: #047857;
   --q-good: #0f766e;
   --q-fair: #8a5a00;
@@ -827,7 +829,398 @@
   box-shadow: 0 0 0 5px color-mix(in srgb, var(--p-fill) 30%, transparent);
 }
 
+/* Current Android band role and four-column band picker. */
+.pm-band-config {
+  gap: 8px;
+}
+.pm-band-role {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.pm-band-role span {
+  display: grid;
+  place-items: center;
+  height: 36px;
+  border-radius: 12px;
+  background: var(--p-tile);
+  color: var(--p-muted);
+  font-size: 14px;
+  font-weight: 600;
+}
+.pm-band-role span.on {
+  background: var(--p-fill);
+  color: var(--p-on-fill);
+}
+.pm-band-help {
+  margin: 0;
+  color: var(--p-muted);
+  font-size: 11px;
+}
+.pm-band-group h5 {
+  margin: 5px 0 0;
+  font-size: 14px;
+  font-weight: 650;
+}
+.pm-band-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 7px;
+  margin-top: 7px;
+}
+.pm-band-grid > span {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-width: 0;
+  height: 31px;
+  border: 1px solid var(--p-tile-line);
+  border-radius: 9px;
+  background: var(--p-tile);
+  font-size: 13px;
+  font-weight: 600;
+  transition:
+    border-color 0.3s,
+    background-color 0.3s,
+    color 0.3s;
+}
+.pm-band-grid > span.on {
+  border-color: color-mix(in srgb, var(--p-title) 52%, transparent);
+  background: color-mix(in srgb, var(--p-title) 10%, var(--p-tile));
+  color: var(--p-title);
+}
+.pm-band-grid > span.locked {
+  border-color: var(--p-ok);
+  color: var(--p-ok);
+}
+.pm-band-grid > span i {
+  width: 6px;
+  height: 11px;
+  border: solid currentColor;
+  border-width: 0 1.8px 1.8px 0;
+  transform: rotate(45deg) translateY(-1px);
+}
+.pm-actions span.danger {
+  border-color: color-mix(in srgb, var(--p-danger) 28%, transparent);
+  background: color-mix(in srgb, var(--p-danger) 22%, transparent);
+  color: var(--p-danger);
+}
+
+/* Device statistics and compact neighbor records from the Android connection page. */
+.pm-device-info {
+  gap: 10px;
+}
+.pm-device-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
+}
+.pm-device-grid > div {
+  display: grid;
+  align-content: center;
+  gap: 5px;
+  min-width: 0;
+  min-height: 57px;
+  padding: 7px 4px;
+  border: 1px solid var(--p-tile-line);
+  border-radius: 13px;
+  background: var(--p-tile);
+  text-align: center;
+}
+.pm-device-grid span {
+  overflow: hidden;
+  color: var(--p-muted);
+  font-size: 10.5px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.pm-device-grid strong {
+  overflow: hidden;
+  font-size: 12.5px;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.pm-device-grid > div:nth-child(4) strong {
+  font-size: 10.5px;
+  text-overflow: clip;
+}
+.pm-neighbor-card {
+  gap: 5px;
+}
+.pm-neighbor-card > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.pm-neighbor-card > header h4 {
+  margin: 0;
+  color: var(--p-title);
+  font-size: 16.5px;
+  font-weight: 600;
+}
+.pm-neighbor-card > header p {
+  margin: 4px 0 0;
+  color: var(--p-muted);
+  font-size: 11px;
+}
+.pm-neighbor-card > header > span {
+  color: var(--p-muted);
+  font-size: 11px;
+}
+.pm-neighbor-row {
+  display: grid;
+  gap: 7px;
+  padding: 10px 0;
+}
+.pm-neighbor-row + .pm-neighbor-row {
+  border-top: 1px solid var(--p-tile-line);
+}
+.pm-neighbor-row > div {
+  display: grid;
+  grid-template-columns: 0.85fr 1.25fr 1fr 22px;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+}
+.pm-neighbor-row > div > strong {
+  color: var(--p-title);
+  font-size: 17px;
+  font-weight: 650;
+}
+.pm-neighbor-row > div > span {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  min-width: 0;
+  font-size: 12.5px;
+  font-style: normal;
+  white-space: nowrap;
+}
+.pm-neighbor-row small {
+  color: var(--p-muted);
+  font-size: 9.5px;
+}
+.pm-neighbor-row b {
+  font-size: 12.5px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.pm-neighbor-row b.poor {
+  color: var(--q-poor);
+}
+.pm-neighbor-row i {
+  color: var(--p-muted);
+  font-size: 10px;
+  font-style: normal;
+  text-align: right;
+}
+.phone-screen-switch-enter-active,
+.phone-screen-switch-leave-active {
+  transition:
+    opacity 0.24s ease,
+    transform 0.24s ease;
+}
+.phone-screen-switch-enter-from {
+  opacity: 0;
+  transform: translateY(12px);
+}
+.phone-screen-switch-leave-to {
+  opacity: 0;
+  transform: translateY(-8px);
+}
+
 /* Test pages */
+.pm-page-status {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  height: 20px;
+  padding-right: 5px;
+  color: var(--p-ok);
+  font-size: 11px;
+  font-weight: 600;
+}
+.pm-page-status i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 0 4px color-mix(in srgb, currentColor 12%, transparent);
+}
+.pm-speed-card {
+  --speed-accent: #63a4ff;
+  position: relative;
+  display: grid;
+  gap: 7px;
+  padding: 12px 14px;
+  border: 1px solid var(--p-tile-line);
+  border-radius: 20px;
+  background: var(--p-card);
+}
+.pm-speed-card.up {
+  --speed-accent: #45c98b;
+}
+.pm-screen.light .pm-speed-card {
+  --speed-accent: #2563eb;
+}
+.pm-screen.light .pm-speed-card.up {
+  --speed-accent: #168a68;
+}
+.pm-speed-card > header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.pm-speed-card > header > i {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--speed-accent) 12%, transparent);
+  color: var(--speed-accent);
+  font-size: 22px;
+  font-style: normal;
+}
+.pm-speed-card > header > div {
+  display: grid;
+  gap: 1px;
+}
+.pm-speed-card > header b {
+  font-size: 14px;
+  font-weight: 650;
+}
+.pm-speed-card > header span {
+  color: var(--p-muted);
+  font-size: 10.5px;
+}
+.pm-speed-headline {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  margin: 0;
+  color: var(--speed-accent);
+}
+.pm-speed-headline strong {
+  font-size: 38px;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.08;
+}
+.pm-speed-headline span {
+  font-size: 15px;
+  font-weight: 600;
+}
+.pm-speed-chart {
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+  height: 102px;
+}
+.pm-speed-axis {
+  display: flex;
+  flex: 0 0 31px;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 1px 0 7px;
+  color: var(--p-muted);
+  font-size: 9px;
+  font-variant-numeric: tabular-nums;
+}
+.pm-speed-plot {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--p-tile-line);
+  border-radius: 11px;
+  background: color-mix(in srgb, var(--p-tile) 56%, transparent);
+}
+.pm-speed-plot svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.pm-speed-plot .grid {
+  fill: none;
+  stroke: var(--p-track);
+  stroke-width: 0.8;
+}
+.pm-speed-plot .guide {
+  fill: none;
+  stroke: var(--speed-accent);
+  stroke-width: 0.8;
+  stroke-dasharray: 5 5;
+  opacity: 0.45;
+}
+.pm-speed-plot line {
+  stroke: var(--speed-accent);
+  stroke-width: 1.4;
+  opacity: 0.4;
+}
+.pm-speed-plot polyline {
+  fill: none;
+  stroke: var(--speed-accent);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+.pm-speed-plot circle {
+  fill: var(--p-card);
+  stroke: var(--speed-accent);
+  stroke-width: 1.4;
+}
+.pm-speed-plot > span {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: var(--p-muted);
+  font-size: 11px;
+}
+.pm-speed-times {
+  display: flex;
+  justify-content: space-between;
+  margin-left: 39px;
+  color: var(--p-muted);
+  font-size: 9px;
+}
+.pm-speed-card dl {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
+  margin: 2px 0 0;
+  padding-top: 9px;
+  border-top: 1px solid var(--p-tile-line);
+}
+.pm-speed-card dl > div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+.pm-speed-card dt {
+  color: var(--p-muted);
+  font-size: 9.5px;
+}
+.pm-speed-card dd {
+  order: -1;
+  overflow: hidden;
+  margin: 0;
+  font-size: 11.5px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 .pm-rate {
   display: flex;
   align-items: baseline;

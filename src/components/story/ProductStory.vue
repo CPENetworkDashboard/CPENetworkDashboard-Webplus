@@ -42,9 +42,10 @@ const chapters: Chapter[] = [
       ['连接概览', '运营商、制式和连接状态集中在第一张卡片。'],
       ['射频质量', '数值实时刷新，磁贴下方的条随信号伸缩、变色。'],
       ['按门限评级', 'RSRP、RSRQ、SINR、RSSI、CQI 按客户端内置门限分为五档。'],
+      ['设备与邻区', '设备流量、连接时长和周边小区改为适合手机阅读的卡片列表。'],
     ],
-    marks: [0, 0.22, 0.58],
-    duration: 7000,
+    marks: [0, 0.18, 0.48, 0.8],
+    duration: 8500,
   },
   {
     id: 'story-lock',
@@ -182,7 +183,11 @@ const heroExplode = computed(() =>
 const phonePage = computed<'connect' | 'lock' | 'test' | 'settings'>(() =>
   active.value === 2 ? 'lock' : active.value === 3 || active.value === 4 ? 'test' : 'connect'
 )
-const phoneTheme = computed<'dark' | 'light'>(() => (active.value === 0 ? 'dark' : theme.value))
+const phoneTheme = computed<'dark' | 'light'>(() => {
+  if (active.value === 0) return 'dark'
+  if (active.value === 3) return 'light'
+  return theme.value
+})
 const phoneTabs = computed(() =>
   active.value === 2 ? ['网络首选', '锁频段', '锁ARFCN', '锁PCI'] : []
 )

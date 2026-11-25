@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { RouterLink } from 'vue-router'
+import AndroidShowcase from '@/components/AndroidShowcase.vue'
 import ProductExplorer from '@/components/ProductExplorer.vue'
 import SiteIcon from '@/components/SiteIcon.vue'
 import { supportedDevices } from '@/content'
@@ -39,7 +40,7 @@ const filteredDevices = computed(() =>
         </div>
         <p>在移动端查看连接状态、配置频段，<br />并完成现场网络测试。</p>
       </div>
-      <ProductExplorer mobile />
+      <AndroidShowcase />
     </section>
     <section id="devices" class="device-directory" aria-labelledby="devices-title">
       <div class="landing-section-heading">

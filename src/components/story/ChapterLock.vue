@@ -1,25 +1,17 @@
 <script setup lang="ts">
 import { computed, toRef } from 'vue'
 import SiteIcon from '@/components/SiteIcon.vue'
-import { ease, pop, span } from './quality'
+import { pop, span } from './quality'
 
 const props = defineProps<{ t: number; on?: boolean; mode: 'screen' | 'stage' }>()
 const t = toRef(props, 't')
-const deal = computed(() => {
-  const open = ease(span(t.value, 0.02, 0.14))
-  return open * (1 - ease(span(t.value, 0.16, 0.3)))
-})
 const phase = computed(() => {
   const v = t.value
   return v < 0.34 ? 0 : v < 0.44 ? 1 : v < 0.54 ? 2 : v < 0.7 ? 3 : 4
 })
-const bands = [
-  ['N1', '2100 MHz'],
-  ['N28', '700 MHz'],
-  ['N41', '2.6 GHz'],
-  ['N78', '3.5 GHz'],
-  ['N79', '4.9 GHz'],
-]
+const lteBands = ['B1', 'B3', 'B5', 'B7', 'B8', 'B20', 'B28', 'B38', 'B40', 'B41', 'B42', 'B43']
+const nrBands = ['N1', 'N3', 'N5', 'N7', 'N8', 'N20', 'N28', 'N38', 'N40', 'N41', 'N77', 'N78']
+const selected = computed(() => new Set(phase.value >= 1 ? ['B8', 'N78'] : ['B8']))
 const statusBadge = computed(() =>
   phase.value === 4
     ? { cls: 'ok', text: '回读一致' }
@@ -31,54 +23,48 @@ const statusBadge = computed(() =>
           ? { cls: 'ready', text: '待应用 · N78' }
           : { cls: 'idle', text: '未锁定' }
 )
-const nrRule = computed(() =>
-  phase.value === 4
-    ? 'mode=1 · bands=78 (SA)'
-    : phase.value === 3
-      ? '设备重新注册蜂窝小区…'
-      : 'mode=0 · bands=(无)'
-)
 const cardShow = computed(() => pop(span(t.value, 0.44, 0.56)))
 </script>
 
 <template>
   <template v-if="mode === 'screen'">
-    <div class="pm-card" :class="{ glow: phase === 2 || phase === 3, 'glow-ok': phase === 4 }">
+    <div
+      class="pm-card pm-band-config"
+      :class="{ glow: phase === 2 || phase === 3, 'glow-ok': phase === 4 }"
+    >
       <div class="pm-card-head">
-        <h4>当前状态</h4>
-        <span class="pm-status-pill" :class="statusBadge.cls">
+        <h4>频段角色</h4>
+        <span v-if="phase > 0" class="pm-status-pill" :class="statusBadge.cls">
           <i v-if="phase === 2 || phase === 3" class="am-spin"></i>
           <SiteIcon v-else-if="phase === 4" name="check" :size="13" />
           {{ statusBadge.text }}
         </span>
       </div>
-      <div class="pm-rules">
-        <div><span>LTE</span><b>mode=0 · bands=(无)</b></div>
-        <div :class="{ verified: phase === 4, active: phase === 3 }">
-          <span>NR</span><b>{{ nrRule }}</b>
+      <div class="pm-band-role"><span class="on">Pcell+Scell</span><span>Scell</span></div>
+      <p class="pm-band-help">选择可作为主小区或辅小区使用的频段</p>
+      <div class="pm-band-group">
+        <h5>LTE 频段</h5>
+        <div class="pm-band-grid">
+          <span v-for="band in lteBands" :key="band" :class="{ on: selected.has(band) }"
+            ><i v-if="selected.has(band)"></i>{{ band }}</span
+          >
+        </div>
+      </div>
+      <div class="pm-band-group">
+        <h5>NR 频段</h5>
+        <div class="pm-band-grid">
+          <span
+            v-for="band in nrBands"
+            :key="band"
+            :class="{ on: selected.has(band), locked: band === 'N78' && phase === 4 }"
+            ><i v-if="selected.has(band)"></i>{{ band }}</span
+          >
         </div>
       </div>
     </div>
     <div class="pm-actions">
-      <span>读取</span><span class="fill" :class="{ pressed: phase === 2 }">应用</span>
-    </div>
-    <div class="pm-card">
-      <h4>NR 频段</h4>
-      <div
-        v-for="([band, freq], index) in bands"
-        :key="band"
-        class="pm-band"
-        :class="{ on: band === 'N78' && phase >= 1, locked: band === 'N78' && phase === 4 }"
-        :style="{
-          transform: `translate3d(${deal * (index - 2) * 140}px, ${deal * (Math.abs(index - 2) * 30 - 36)}px, 0) rotate(${deal * (index - 2) * 8}deg)`,
-        }"
-      >
-        <div>
-          <b>{{ band }}</b
-          ><small>NR 频段 · {{ freq }}</small>
-        </div>
-        <span>SA</span><span>NSA</span><i></i>
-      </div>
+      <span class="fill" :class="{ pressed: phase === 2 }">应用</span
+      ><span class="danger">清空</span>
     </div>
   </template>
 

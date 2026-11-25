@@ -65,6 +65,7 @@ watch(
 )
 onUnmounted(() => clearTimeout(t3d))
 const overlay = computed(() => (props.theme === 'dark' ? 'light' : 'dark'))
+const clock = computed(() => (props.title === '测速' ? '2:49' : '00:04'))
 const wiping = computed(() => (props.wipe ?? 0) > 0 && (props.wipe ?? 0) < 1)
 const layers = computed(() =>
   wiping.value
@@ -96,7 +97,7 @@ const lensAt = computed(() => props.lens ?? dock.findIndex(([id]) => id === prop
       "
     >
       <div class="pm-status pm-layer" style="--z: 0.5; --fy: -6px">
-        <b>18:00</b>
+        <b>{{ clock }}</b>
         <span class="pm-icons"
           ><small>5G</small><i class="sig"></i><i class="wifi"></i><i class="bat">96</i></span
         >

@@ -2,34 +2,33 @@
 import { computed, toRef } from 'vue'
 import PhoneTile from './PhoneTile.vue'
 import RollNumber from './RollNumber.vue'
+import SpeedRealtimeCard from './SpeedRealtimeCard.vue'
 import { W } from './data'
 import { ease, pop, span } from './quality'
 
 const props = defineProps<{ t: number; on?: boolean; mode: 'screen' | 'stage' | 'back' }>()
 const t = toRef(props, 't')
 
-// Samples jump the way a live multi-thread test does, rather than gliding.
-const downSteps = [0, 96, 284, 461, 618, 742, 836, 893, 921, 932]
-const upSteps = [0, 18, 46, 77, 101, 122, 136, 144, 147, 148]
+const downSamples = [
+  468, 472, 465, 471, 466, 476, 473, 480, 475, 469, 472, 479, 463, 451, 444, 447, 458, 481, 474,
+  478, 475, 473, 476, 469, 470, 481, 486, 492, 499, 508,
+]
+const upSamples = [
+  54, 56, 53, 51, 48, 46, 44, 42, 40, 39, 38, 39, 41, 44, 47, 49, 52, 55, 58, 57, 54, 53, 56, 59,
+  61, 60, 66, 72, 78, 84.2,
+]
 const run = computed(() => span(t.value, 0.04, 0.42))
-const sample = computed(() =>
-  Math.min(downSteps.length - 1, Math.floor(run.value * downSteps.length))
-)
-const down = computed(() => downSteps[sample.value]!)
-const up = computed(() => upSteps[sample.value]!)
+const sampleCount = computed(() => Math.floor(run.value * downSamples.length))
+const seenDown = computed(() => downSamples.slice(0, sampleCount.value))
+const seenUp = computed(() => upSamples.slice(0, sampleCount.value))
+const down = computed(() => seenDown.value[seenDown.value.length - 1] ?? 0)
+const up = computed(() => seenUp.value[seenUp.value.length - 1] ?? 0)
+const mean = (list: number[]) => (list.length ? list.reduce((a, b) => a + b, 0) / list.length : 0)
+const downAverage = computed(() => Math.round(mean(seenDown.value)))
+const upAverage = computed(() => mean(seenUp.value).toFixed(1))
+const downPeak = computed(() => Math.round(Math.max(0, ...seenDown.value)))
+const upPeak = computed(() => Math.max(0, ...seenUp.value).toFixed(1))
 const speed = computed(() => t.value < 0.5)
-const rates = computed(() => {
-  const f = (v: number) => `${v} Mbps`
-  const peak = (list: number[]) => Math.max(...list.slice(0, sample.value + 1))
-  return [
-    ['下载速度', f(down.value)],
-    ['上传速度', f(up.value)],
-    ['平均下载', f(Math.round(down.value * 0.92))],
-    ['平均上传', f(Math.round(up.value * 0.9))],
-    ['最高下载', f(peak(downSteps) + (sample.value > 7 ? 16 : 0))],
-    ['最高上传', f(peak(upSteps) + (sample.value > 7 ? 8 : 0))],
-  ]
-})
 const out = computed(() => pop(span(t.value, 0.02, 0.16)))
 const bubble = computed(() => pop(span(t.value, 0.22, 0.34)))
 
@@ -64,29 +63,25 @@ const pingOut = computed(() => ease(span(t.value, 0.54, 0.62)))
 <template>
   <template v-if="mode === 'screen'">
     <template v-if="speed">
-      <div class="pm-card glow">
-        <h4>速率监控</h4>
-        <div class="pm-grid c2">
-          <div v-for="[label, value] in rates" :key="label" class="pm-rate">
-            <span>{{ label }}</span
-            ><strong>{{ value }}</strong>
-          </div>
-        </div>
-      </div>
-      <div class="pm-card">
-        <h4>原生测速</h4>
-        <div class="pm-field">Cloudflare 100MB</div>
-        <p class="pm-note">
-          下载 https://speed.cloudflare.com/__down?bytes=100000000<br />上传
-          https://speed.cloudflare.com/__up
-        </p>
-        <div class="pm-slider">
-          线程数：16<i><s style="width: 26%"></s></i>
-        </div>
-        <div class="pm-switch" :class="{ on: bubble > 0.5 }">
-          <span>悬浮实时速率窗</span><i></i>
-        </div>
-      </div>
+      <div class="pm-page-status"><i></i>{{ sampleCount ? '双向中' : '准备中' }}</div>
+      <SpeedRealtimeCard
+        direction="down"
+        :rate="String(Math.round(down))"
+        :average="`${downAverage} Mbps`"
+        :peak="`${downPeak} Mbps`"
+        :traffic="`${(9.35 * run).toFixed(2)} GB`"
+        :samples="downSamples"
+        :reveal="run"
+      />
+      <SpeedRealtimeCard
+        direction="up"
+        :rate="up.toFixed(1)"
+        :average="`${upAverage} Mbps`"
+        :peak="`${upPeak} Mbps`"
+        :traffic="`${(1.03 * run).toFixed(2)} GB`"
+        :samples="upSamples"
+        :reveal="run"
+      />
     </template>
     <template v-else>
       <div class="pm-card">
