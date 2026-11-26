@@ -33,8 +33,6 @@ const section = computed(() => {
     :shot="scene"
     :title="detailTitle"
     :light="scene === 'speed' || (scene === 'settings' && progress >= 0.56)"
-    :hero="scene === 'connect'"
-    :progress
   >
     <SpectrumScene v-if="scene === 'speed' || scene === 'wifi'" :scene :progress />
     <RadioScene v-else :scene :progress />

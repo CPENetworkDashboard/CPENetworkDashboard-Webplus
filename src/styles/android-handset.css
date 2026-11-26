@@ -5,11 +5,11 @@
   height: 100%;
   min-height: 0;
   container-type: size;
-  perspective: 980px;
   pointer-events: none;
 }
 .android-handset {
-  --android-bg: #0e1219;
+  --android-bg: #0e131d;
+  --android-bg-end: #101827;
   --android-surface: #1e2028;
   --android-tile: #22242e;
   --android-outline: #484a52;
@@ -19,29 +19,33 @@
   --android-on-accent: #082b52;
   --android-strong: #8bdbc8;
   --android-radius: clamp(10px, 3cqw, 15px);
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  width: min(100%, 390px, max(252px, 66cqh));
-  height: min(100%, 680px);
-  padding: 3px;
-  border: 1px solid #8ca3bc85;
-  border-radius: clamp(23px, 6cqw, 34px);
-  background: linear-gradient(167deg, var(--android-bg), #0b1220);
+  --device-bezel: clamp(3px, 1.2cqw, 5px);
+  --device-radius: clamp(23px, 8cqw, 36px);
+  width: min(100%, 374px, max(253px, 59cqh));
+  height: min(100%, 659px);
+  padding: var(--device-bezel);
+  border: 1px solid #536881;
+  border-radius: var(--device-radius);
+  background: linear-gradient(146deg, #344355, #0b1019 35%, #141d2a 76%, #394c62);
   box-shadow:
-    inset 0 0 0 2px #7087a322,
-    0 18px 45px -24px #020509;
+    inset 0 0 0 1px #e2edff16,
+    0 22px 44px -30px #04070f;
   color: var(--android-text);
   font-variant-numeric: tabular-nums;
   line-height: 1.35;
-  transform: rotateY(var(--app-yaw, 0deg)) rotateX(var(--app-pitch, 0deg))
-    rotateZ(var(--app-roll, 0deg)) scale(var(--app-zoom, 1));
 }
-.android-shot-hero .android-handset {
-  transform-style: preserve-3d;
+.android-display {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: clip;
+  border: 1px solid #060a1250;
+  border-radius: calc(var(--device-radius) - var(--device-bezel));
+  background: linear-gradient(165deg, var(--android-bg), var(--android-bg-end));
 }
 .android-handset-light {
   --android-bg: #f8fbff;
+  --android-bg-end: #eff4fa;
   --android-surface: #fff;
   --android-tile: #f2f5fa;
   --android-outline: #d2dae8;
@@ -50,51 +54,61 @@
   --android-accent: #1668d9;
   --android-on-accent: #fff;
   --android-strong: #157b65;
-  background: linear-gradient(165deg, #f8fbff, #eff5fc 72%, #f5f8fc);
 }
+/* System chrome is composed separately from the app's cards. */
 .android-status-line {
   display: flex;
   flex: none;
   align-items: center;
   justify-content: space-between;
-  height: clamp(21px, 5cqh, 32px);
-  padding-inline: 13px;
-  font-size: clamp(9px, 2.8cqw, 12px);
-  font-weight: 660;
+  height: clamp(24px, 5.8cqh, 37px);
+  padding-inline: clamp(12px, 4.4cqw, 20px);
+  font-size: clamp(10px, 3cqw, 13px);
+  font-weight: 630;
+  line-height: 1;
+}
+.android-time {
+  letter-spacing: 0.025em;
 }
 .android-status-icons {
   display: flex;
   align-items: center;
-  gap: 3px;
+  gap: clamp(3px, 1.3cqw, 6px);
 }
-.android-battery {
-  display: grid;
-  place-items: center;
-  width: 19px;
-  height: 11px;
-  border: 1px solid currentColor;
-  border-radius: 3px;
-  line-height: 1;
-  font-size: 8px;
-  font-style: normal;
+.android-status-icons svg {
+  width: clamp(11px, 3.45cqw, 15px);
+  height: clamp(11px, 3.45cqw, 15px);
+}
+.android-status-icons .android-battery {
+  width: clamp(16px, 4.85cqw, 23px);
+  height: clamp(16px, 4.85cqw, 23px);
+}
+.android-network-type {
+  font-size: 0.78em;
+  letter-spacing: 0.025em;
+  font-weight: 650;
 }
 .android-detail-bar {
   display: flex;
   flex: none;
   align-items: center;
-  gap: 9px;
-  padding: 0 10px clamp(4px, 1.2cqh, 8px);
-  font-size: clamp(13px, 4cqw, 17px);
-  font-weight: 630;
+  gap: clamp(7px, 2.4cqw, 12px);
+  min-height: clamp(28px, 7.75cqh, 44px);
+  padding: 0 clamp(7px, 2.8cqw, 14px) 4px;
+  font-size: clamp(13px, 4.4cqw, 18px);
+  font-weight: 620;
 }
-.android-detail-bar svg {
-  width: clamp(21px, 6cqw, 29px);
-  height: clamp(21px, 6cqw, 29px);
-  box-sizing: border-box;
-  padding: 4px;
-  border: 1px solid var(--android-outline);
+.android-back {
+  display: grid;
+  place-items: center;
+  width: clamp(21px, 7cqw, 31px);
+  height: clamp(21px, 7cqw, 31px);
   border-radius: 50%;
-  background: var(--android-surface);
+  background: color-mix(in srgb, var(--android-text) 6%, transparent);
+}
+.android-back svg {
+  width: 72%;
+  height: 72%;
 }
 .android-screen {
   display: grid;
@@ -103,9 +117,6 @@
   min-height: 0;
   margin: 0 clamp(5px, 2cqw, 10px);
   container: android-screen / size;
-}
-.android-shot-hero :is(.android-screen, .radio-scene) {
-  transform-style: preserve-3d;
 }
 .android-card {
   display: flex;
@@ -135,14 +146,15 @@
   flex: none;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   align-self: center;
-  width: 86%;
-  margin-top: clamp(4px, 1.2cqh, 9px);
-  min-height: clamp(34px, 8.5cqh, 55px);
+  width: 87%;
+  margin-top: clamp(4px, 1.1cqh, 8px);
+  min-height: clamp(35px, 8.5cqh, 53px);
   isolation: isolate;
-  padding: 2px;
-  border: 1px solid #d2e1fb41;
+  padding: 3px;
+  border: 1px solid #a9c3e136;
   border-radius: 999px;
-  background: linear-gradient(120deg, #303543, #1b1f2b 58%, #272c3a);
+  color: #b2bed0;
+  background: linear-gradient(126deg, #30394a, #202837 56%, #273241);
   box-shadow:
     inset 0 1px 1px #edf4ff27,
     0 4px 10px #040b1740;
@@ -150,11 +162,11 @@
 .android-dock-lens {
   position: absolute;
   z-index: -1;
-  inset: 2px auto 2px 2px;
-  width: calc((100% - 4px) / 4);
+  inset: 3px auto 3px 3px;
+  width: calc((100% - 6px) / 4);
   transform: translateX(calc(100% * var(--dock-index)));
   border-radius: inherit;
-  background: #d3e4ff23;
+  background: #afc9f423;
 }
 .android-dock > span {
   display: grid;
@@ -165,7 +177,7 @@
   white-space: nowrap;
 }
 .android-dock > span[data-current='true'] {
-  color: var(--android-accent);
+  color: #b5d6ff;
 }
 .android-dock svg {
   width: clamp(13px, 3.6cqh, 19px);
@@ -175,14 +187,14 @@
   flex: none;
   width: 30%;
   height: 3px;
-  margin: 5px auto 3px;
+  margin: clamp(4px, 1.25cqh, 7px) auto clamp(3px, 1cqh, 6px);
   border-radius: 3px;
   background: currentColor;
   opacity: 0.48;
 }
 @media (max-width: 760px) {
   .android-handset {
-    width: min(100%, 365px, max(262px, 68cqh));
+    width: min(100%, 332px, max(234px, 59cqh));
   }
 }
 @media (min-width: 560px) and (max-height: 510px) {
@@ -199,12 +211,10 @@
   }
   @keyframes android-page-enter {
     from {
-      opacity: 0.55;
-      translate: 0 5px;
+      opacity: 0.68;
     }
     to {
       opacity: 1;
-      translate: 0 0;
     }
   }
 }

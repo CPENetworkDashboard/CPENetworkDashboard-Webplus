@@ -1,4 +1,4 @@
-import { mount, flushPromises, type VueWrapper } from '@vue/test-utils'
+import { mount, flushPromises, RouterLinkStub, type VueWrapper } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import AndroidShowcase from '@/components/AndroidShowcase.vue'
 import { chapters, linkedScene, type SceneId } from '@/components/story/film'
@@ -46,7 +46,7 @@ afterEach(() => {
 })
 
 function render() {
-  view = mount(AndroidShowcase)
+  view = mount(AndroidShowcase, { global: { stubs: { RouterLink: RouterLinkStub } } })
   const track = view.element as HTMLElement
   Object.defineProperty(track, 'offsetHeight', { value: 3500 })
   vi.spyOn(track, 'getBoundingClientRect').mockImplementation(() => ({ top }) as DOMRect)
@@ -84,6 +84,8 @@ describe('product presentation', () => {
     expect(frames.size).toBe(0)
     await advance(140)
     expect(page.attributes('data-shot')).toBe('connect')
+    const handset = page.get('.android-handset').element
+    const statusBar = page.get('.android-status-line').element
     expect(page.get('.android-dock').text()).toBe('连接锁频测试设置')
     expect(page.get('.rs-cell').attributes('data-carrier')).toBe('NR SCC1')
     await seek('neighbors')
@@ -96,6 +98,10 @@ describe('product presentation', () => {
         .findAll('li')
         .map((tab) => tab.text())
     ).toEqual(['网络首选', '锁频段', '锁频点', '锁小区'])
+    await seek('speed')
+    expect(page.get('.android-handset').element).toBe(handset)
+    expect(page.get('.android-status-line').element).toBe(statusBar)
+    expect(page.get('.android-detail-bar').text()).toBe('测速')
     await seek('desktop-lock')
     expect(page.attributes('data-shot')).toBe('desktop-lock')
     await seek('connect')

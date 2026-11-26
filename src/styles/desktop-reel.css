@@ -1,4 +1,4 @@
-/* All motion is a pose supplied by the host. Keep the layers in the same 3D context. */
+/* Keep the window in place while the readings animate inside. */
 .desktop-reel {
   --desk-bg: var(--s-bg, #101923);
   --desk-pane: var(--s-pane, #17212e);
@@ -14,7 +14,6 @@
   height: 100%;
   min-width: 0;
   min-height: 0;
-  perspective: 1000px;
   color: var(--desk-ink);
   font-family: var(--font-sans, 'MiSans', system-ui, sans-serif);
   font-variant-numeric: tabular-nums;
@@ -24,7 +23,6 @@
 }
 .reel-window {
   --pad: clamp(9px, 2.4cqh, 15px);
-  --depth: clamp(42px, 13cqw, 80px);
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
   width: 94%;
@@ -33,14 +31,6 @@
   border-radius: 13px;
   background: linear-gradient(148deg, var(--desk-tile), var(--desk-bg) 63%);
   box-shadow: 0 12px 26px -15px #040b16;
-  transform: rotateX(var(--pitch, 0deg)) rotateY(var(--yaw, 0deg)) rotateZ(var(--roll, 0deg))
-    scale(var(--zoom, 1));
-}
-.reel-window,
-.reel-body,
-.reel-work,
-.reel-radio-grid {
-  transform-style: preserve-3d;
 }
 .reel-titlebar,
 .reel-panel-head,
@@ -159,15 +149,19 @@
   background: var(--desk-tile);
 }
 .reel-signal {
+  position: relative;
   grid-row: span 2;
   gap: 7px;
   border-color: color-mix(in srgb, var(--desk-blue) 52%, var(--desk-line));
   background: linear-gradient(150deg, #2b4058, var(--desk-tile));
-  box-shadow: 0 calc(var(--lift, 0) * 12px) calc(var(--lift, 0) * 22px) #070e1a6b;
-  transform: translateZ(calc(var(--depth) * var(--lift, 0)));
 }
-.reel-reading {
-  transform: translateZ(calc(var(--depth) * var(--lift, 0) * 0.26));
+.reel-signal::after {
+  position: absolute;
+  inset: 0;
+  opacity: var(--signal-focus, 0);
+  border: 1px solid var(--desk-blue);
+  border-radius: inherit;
+  content: '';
 }
 .reel-label,
 .reel-reading > span,
@@ -198,6 +192,8 @@
   width: 90%;
   height: 100%;
   background: var(--desk-blue);
+  transform: scaleX(var(--signal-fill, 1));
+  transform-origin: left;
 }
 .reel-reading b {
   font-size: clamp(16px, min(4.2cqw, 6.2cqh), 27px);
@@ -299,9 +295,6 @@
   stroke-width: 2.5;
   stroke-linejoin: round;
 }
-.desktop-reel[data-held='true'] :is(.reel-window, [data-layer]) {
-  transform: none;
-}
 
 @container desktop-board (max-width: 420px) {
   .reel-window {
@@ -352,10 +345,6 @@
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .desktop-reel :is(.reel-window, [data-layer]) {
-    transform: none;
-    box-shadow: none;
-  }
   .reel-bands [data-band='B8'] {
     border-color: var(--desk-blue);
     background: #273d56;

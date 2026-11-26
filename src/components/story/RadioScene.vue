@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import { deviceStats, radioNeighbors } from '@/data/androidPreview'
 import SiteIcon from '../SiteIcon.vue'
+import AndroidGlyph from './AndroidGlyph.vue'
 import { cellFacts, finalPower, finalRadio } from './data'
 import { level, score, span } from './quality'
 import '@/styles/radio-scene.css'
@@ -62,7 +63,10 @@ const applying = computed(() => props.progress >= 0.7 && props.progress < 0.87)
 const applied = computed(() => props.progress >= 0.87)
 const settingsDetail = computed(() => props.progress >= 0.24)
 const styleLight = computed(() => props.progress >= 0.56)
-const highlight = computed(() => span(props.progress, 0.06, 0.35))
+const readingFill = computed(() => 0.36 + 0.64 * span(props.progress, 0.06, 0.38))
+const readingFocus = computed(
+  () => span(props.progress, 0.08, 0.26) * (1 - span(props.progress, 0.44, 0.8))
+)
 </script>
 
 <template>
@@ -72,7 +76,7 @@ const highlight = computed(() => span(props.progress, 0.06, 0.35))
         <header class="rs-operator">
           <b>中国移动 5G SA</b>
           <SiteIcon name="chevron" :size="13" />
-          <div class="rs-signal"><i></i><i></i><i></i><i></i><strong>5G</strong></div>
+          <div class="rs-signal"><AndroidGlyph name="signal" /><strong>5G</strong></div>
         </header>
         <p>SIM卡AMBR 暂无数据 <span class="rs-ambr">获取</span></p>
         <span class="rs-online"><i></i>蜂窝已连接</span>
@@ -91,23 +95,26 @@ const highlight = computed(() => span(props.progress, 0.06, 0.35))
           <h3>当前小区（{{ carrier.label }}）</h3>
         </header>
         <dl class="rs-metrics rs-current-cell">
-          <div v-for="{ label, value } in currentCell" :key="label">
+          <div v-for="{ label, value } in currentCell" :key="label" :data-metric="label">
             <dt>{{ label }}</dt>
-            <dd>{{ value }}</dd>
+            <dd :key="value">{{ value }}</dd>
           </div>
         </dl>
       </section>
-      <section class="android-card rs-rf">
+      <section
+        class="android-card rs-rf"
+        :style="{ '--reading-focus': readingFocus, '--reading-fill': readingFill }"
+      >
         <header class="android-card-heading">
           <h3>射频质量（{{ carrier.label }}）</h3>
         </header>
         <dl class="rs-metrics rs-rf-readings">
           <div v-for="metric in readings" :key="metric.label" :data-quality="metric.quality">
             <dt>{{ metric.label }}</dt>
-            <dd>
+            <dd :key="metric.value">
               {{ metric.value }}<small v-if="metric.unit">{{ metric.unit }}</small>
             </dd>
-            <i :style="{ '--strength': metric.fill * (0.36 + 0.64 * highlight) }"></i>
+            <i :style="{ '--strength': metric.fill }"></i>
           </div>
         </dl>
       </section>

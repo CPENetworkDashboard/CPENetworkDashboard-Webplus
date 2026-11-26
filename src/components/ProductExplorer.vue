@@ -12,18 +12,10 @@ function cue(start: number, end: number) {
   const t = span(frame.value, start, end)
   return t * t * (3 - 2 * t)
 }
-const camera = computed(() => {
-  if (props.scene !== 'desktop-connect') return {}
-  const angle = 1 - cue(0.3, 0.96)
-  const lift = cue(0.04, 0.42) * (1 - cue(0.55, 0.92))
-  return {
-    '--yaw': -36 * angle + 'deg',
-    '--pitch': 14 * angle + 'deg',
-    '--roll': -5 * angle + 'deg',
-    '--zoom': 0.81 + 0.19 * cue(0, 0.85),
-    '--lift': lift,
-  }
-})
+const radioProgress = computed(() => ({
+  '--signal-focus': cue(0.06, 0.38) * (1 - cue(0.55, 0.95)),
+  '--signal-fill': 0.34 + 0.66 * cue(0, 0.63),
+}))
 const bandSelected = computed(() => frame.value >= 0.32)
 const readback = computed(() => frame.value >= 0.72)
 const bands = ['B1', 'B3', 'B5', 'B7', 'B8', 'B20']
@@ -55,7 +47,6 @@ const traceRemaining = computed(() => 1 - cue(0.07, 0.93))
     :data-held="frame === 1"
     role="img"
     :aria-label="descriptions[scene]"
-    :style="camera"
   >
     <div class="reel-window" data-part="window" aria-hidden="true">
       <div class="reel-titlebar">
@@ -74,7 +65,7 @@ const traceRemaining = computed(() => 1 - cue(0.07, 0.93))
         </div>
         <div v-if="scene === 'desktop-connect'" class="reel-work">
           <div class="reel-panel-head"><strong>射频质量</strong><small>连接看板</small></div>
-          <div class="reel-radio-grid">
+          <div class="reel-radio-grid" :style="radioProgress">
             <div class="reel-signal" data-layer="signal">
               <div class="reel-label">RSRP <small>参考功率</small></div>
               <div class="reel-number">−66 <small>dBm</small></div>

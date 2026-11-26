@@ -4,7 +4,7 @@ export const chapters = [
     platform: 'Android',
     label: '连接',
     heading: '连接与射频质量',
-    copy: '在同一块看板上切换主、辅载波。当前小区的频段、PCI 和射频读数随之更新。',
+    copy: '切换主辅载波，查看对应小区的频段、PCI 和射频读数。',
     caption: '连接看板 · 主载波与辅载波',
   },
   {
@@ -12,7 +12,7 @@ export const chapters = [
     platform: 'Android',
     label: '链路',
     heading: '载波聚合与上下行链路',
-    copy: '从 PCC、SCC 的频段与带宽，到发射功率、调制和 MCS，沿着连接页继续查看。',
+    copy: '查看各载波的频段、带宽和发射功率，以及上下行的调制和 MCS。',
     caption: '连接看板 · 载波聚合与链路',
   },
   {
@@ -20,7 +20,7 @@ export const chapters = [
     platform: 'Android',
     label: '邻区',
     heading: '同一频点，三个邻区',
-    copy: 'H153-381 在 LTE B8 上报告了三个邻区。它们的频点都是 3740，PCI 和接收功率各不相同。',
+    copy: '在 LTE B8 的 3740 频点，比较三个邻区的 PCI 和 RSRP。',
     caption: '华为 H153-381 · 设备信息与邻区',
   },
   {
@@ -44,7 +44,7 @@ export const chapters = [
     platform: 'Android',
     label: '测速',
     heading: '双向测速',
-    copy: '下载和上传各有一条最近 30 秒的速率曲线。平均值、平滑峰值和流量记录了整次测试的表现。',
+    copy: '下载和上传各有一条 30 秒曲线，可对照平均速率、平滑峰值和流量。',
     caption: '测速 · 下载与上传',
   },
   {
@@ -52,7 +52,7 @@ export const chapters = [
     platform: 'Android',
     label: 'Wi-Fi',
     heading: '附近的 Wi-Fi 信道',
-    copy: '在 2.4 GHz 和 5 GHz 两个频段上观察附近热点。曲线重叠处可以看出多个热点共用的频谱。',
+    copy: '查看 2.4 GHz 和 5 GHz 热点分布，比较各信道的占用情况。',
     caption: 'Wi-Fi 信道 · 频道健康',
   },
   {

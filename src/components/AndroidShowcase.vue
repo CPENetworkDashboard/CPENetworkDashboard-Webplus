@@ -15,18 +15,9 @@ const chapters = props.home
 const desktopIndex = chapters.findIndex((chapter) => chapter.platform === 'macOS / Windows')
 const track = ref<HTMLElement | null>(null)
 const stage = ref<HTMLElement | null>(null)
-const { active, progress, position, reduced } = useScrollFilm(track, stage, chapters.length)
+const { active, progress, reduced } = useScrollFilm(track, stage, chapters.length)
 const shot = computed(() => chapters[active.value]!)
 const platform = computed(() => (shot.value.platform === 'Android' ? 'android' : 'desktop'))
-const camera = computed(() => {
-  const within = position.value - active.value
-  return {
-    '--travel': Math.min(1, within),
-    '--take': progress.value,
-    '--frame-out': active.value === chapters.length - 1 ? 0 : Math.max(0, (within - 0.78) / 0.22),
-    '--film-length': chapters.length,
-  }
-})
 function platformAnchor(index: number) {
   if (index === 0) return 'mobile'
   if (index === desktopIndex) return 'desktop'
@@ -41,31 +32,42 @@ function platformAnchor(index: number) {
     :data-shot="shot.scene"
     :data-platform="platform"
     :data-settled="progress === 1"
-    :style="camera"
+    :style="{ '--film-length': chapters.length }"
     aria-label="CPE加加产品展示"
   >
     <template v-if="!reduced">
       <div ref="stage" class="film-stage">
         <div class="film-haze" aria-hidden="true"></div>
         <div class="film-sheet content-width">
-          <div :key="shot.scene" class="film-script">
-            <p class="film-label">
-              {{ home && active === 0 ? 'CPE加加' : shot.platform }}
-              <span aria-hidden="true">/</span> {{ home && active === 0 ? 'Android' : shot.label }}
-            </p>
-            <h1 v-if="home && active === 0" id="home-title">看清信号，<br />再调频段。</h1>
-            <h2 v-else>{{ shot.heading }}</h2>
-            <p class="film-description">
-              {{
-                home && active === 0
-                  ? '查看 4G / 5G 小区，管理频段与邻区，在同一个 App 里验证网速。'
-                  : shot.copy
-              }}
-            </p>
-            <div v-if="active === 0 && home" class="film-actions">
+          <div class="film-script">
+            <div class="film-copy-stack">
+              <div
+                v-for="(item, index) in chapters"
+                :key="item.scene"
+                class="film-copy"
+                :class="{ 'is-current': index === active }"
+                :aria-hidden="index !== active || undefined"
+              >
+                <p class="film-label">
+                  {{ home && index === 0 ? 'CPE加加' : item.platform }}
+                  <span aria-hidden="true">/</span>
+                  {{ home && index === 0 ? 'Android' : item.label }}
+                </p>
+                <h1 v-if="home && index === 0" id="home-title">看清信号，<br />再调频段。</h1>
+                <h2 v-else>{{ item.heading }}</h2>
+                <p class="film-description">
+                  {{
+                    home && index === 0
+                      ? '查看 4G / 5G 信号和邻区，调整频段后直接测速。'
+                      : item.copy
+                  }}
+                </p>
+              </div>
+            </div>
+            <div class="film-actions">
               <RouterLink class="launch-download" to="/download"
                 ><SiteIcon name="download" :size="17" />下载 CPE加加</RouterLink
-              ><RouterLink class="film-link" to="/product">产品介绍</RouterLink>
+              ><RouterLink v-if="home" class="film-link" to="/product">产品介绍</RouterLink>
             </div>
           </div>
           <figure class="film-figure" :aria-label="shot.caption + '，示例数据'">
@@ -81,8 +83,7 @@ function platformAnchor(index: number) {
             </figcaption>
           </figure>
           <div class="film-foot">
-            <span class="film-current-label">{{ shot.label }}</span
-            ><span class="film-scroll-cue"><i aria-hidden="true"></i>向下浏览</span>
+            <span class="film-scroll-cue"><SiteIcon name="chevron" :size="14" />向下浏览</span>
             <ol aria-label="展示章节">
               <li
                 v-for="(item, i) in chapters"
@@ -90,6 +91,7 @@ function platformAnchor(index: number) {
                 :aria-label="item.platform + ' · ' + item.label"
                 :aria-current="active === i ? 'step' : undefined"
                 :class="{ seen: active > i }"
+                :style="active === i ? { '--take': progress } : undefined"
               >
                 <i aria-hidden="true"></i><span>{{ item.label }}</span>
               </li>

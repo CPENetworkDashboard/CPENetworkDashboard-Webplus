@@ -3,7 +3,7 @@
 :root[data-theme='dark'] .topbar {
   top: 0;
   width: 100%;
-  min-height: 64px;
+  min-height: var(--site-header-height);
   padding: 8px max(24px, calc((100% - var(--page-width)) / 2));
   border: 0;
   border-bottom: 1px solid var(--line);
@@ -33,6 +33,7 @@
 }
 /* Blue light fades into the neutral work surface under the product window. */
 :root {
+  --site-header-height: 64px;
   --ink: #202631;
   --muted: #515e70;
   --soft: #f5f7fb;
@@ -69,36 +70,29 @@ body::before,
 :root[data-theme='dark'] body::before {
   background: none;
 }
-.top-marker {
-  height: 1px;
-  position: absolute;
-  top: 0;
-  pointer-events: none;
-}
 .topbar,
-.topbar.over-hero,
 :root[data-theme='dark'] .topbar {
   transition:
     background-color 0.23s ease,
     border-color 0.23s ease;
 }
-.topbar.over-hero,
-:root[data-theme='dark'] .topbar.over-hero {
-  background: transparent;
-  border-color: transparent;
+.topbar.showcase-topbar,
+:root[data-theme='dark'] .topbar.showcase-topbar {
+  background: #131f2d;
+  border-color: #adcaed1c;
   color: #f1f5fb;
 }
-.over-hero .brand-lockup strong,
-.over-hero .theme-toggle,
-.over-hero .mobile-menu-toggle {
+.showcase-topbar .brand-lockup strong,
+.showcase-topbar .theme-toggle,
+.showcase-topbar .mobile-menu-toggle {
   color: #f2f5fa;
 }
-.over-hero .nav-links a,
-:root[data-theme='dark'] .over-hero .nav-links a {
+.showcase-topbar .nav-links a,
+:root[data-theme='dark'] .showcase-topbar .nav-links a {
   color: #d5deeb;
 }
-.over-hero .nav-links a:is(.active, :hover),
-:root[data-theme='dark'] .over-hero .nav-links a:is(.active, :hover) {
+.showcase-topbar .nav-links a:is(.active, :hover),
+:root[data-theme='dark'] .showcase-topbar .nav-links a:is(.active, :hover) {
   background: #ffffff15;
   color: white;
 }
@@ -480,10 +474,12 @@ body::before,
   }
 }
 @media (max-width: 720px) {
+  :root {
+    --site-header-height: 56px;
+  }
   .topbar,
   :root[data-theme='dark'] .topbar {
     padding: 5px 14px;
-    min-height: 56px;
   }
   .nav-links {
     top: 100%;
@@ -812,7 +808,7 @@ body::before,
   }
 }
 @media (max-width: 720px) {
-  .topbar.over-hero .nav-links.is-open {
+  .topbar.showcase-topbar .nav-links.is-open {
     background: #192638;
     border-color: #3d4b5f;
   }

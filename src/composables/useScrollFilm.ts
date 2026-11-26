@@ -7,14 +7,13 @@ export function useScrollFilm(
   count: number
 ) {
   const active = ref(0),
-    progress = ref(0),
-    position = ref(0)
+    progress = ref(0)
   const media =
     typeof window === 'undefined'
       ? undefined
       : window.matchMedia('(prefers-reduced-motion: reduce), (max-height: 300px)')
   const reduced = ref(media?.matches ?? false)
-  const duration = 4000
+  const duration = 3200
   let observer: IntersectionObserver | undefined, resize: ResizeObserver | undefined
   let visible = false,
     dirty = true,
@@ -44,7 +43,6 @@ export function useScrollFilm(
       previous = 0
     }
     take = Math.min(1, Math.max(take, local * 1.12))
-    position.value = physical
   }
   function play(now: number) {
     frame = 0
@@ -52,8 +50,7 @@ export function useScrollFilm(
     if (dirty) measure()
     if (previous) take = Math.min(1, take + Math.min(100, now - previous) / duration)
     previous = now
-    // Chart samples and labels update only when their own value changes.
-    // Keep the phone's camera attached to the display refresh rate during the take.
+    // Keep in-screen motion in step with the display while the chapter plays.
     progress.value = take
     dirty = false
     if (take < 1) frame = requestAnimationFrame(play)
@@ -107,5 +104,5 @@ export function useScrollFilm(
     window.removeEventListener('resize', requestPaint)
     document.removeEventListener('visibilitychange', visibility)
   })
-  return { active, progress, position, reduced }
+  return { active, progress, reduced }
 }

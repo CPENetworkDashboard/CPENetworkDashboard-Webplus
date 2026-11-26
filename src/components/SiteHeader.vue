@@ -9,10 +9,8 @@ type ThemeMode = 'light' | 'dark'
 const theme = ref<ThemeMode>('light')
 const isDark = computed(() => theme.value === 'dark')
 const menuOpen = ref(false)
-const atTop = ref(true)
-const topMarker = ref<HTMLElement>()
-let topObserver: IntersectionObserver | undefined
 const route = useRoute()
+const showcase = computed(() => route.path === '/' || route.path === '/product')
 const header = ref<HTMLElement>()
 const menuToggle = ref<HTMLButtonElement>()
 function closeMenu() {
@@ -35,18 +33,21 @@ watch(
   }
 )
 
-onUnmounted(() => topObserver?.disconnect())
-
 function preferredTheme(): ThemeMode {
   return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
 }
 
+function updateThemeColor() {
+  const color = showcase.value ? '#131f2d' : isDark.value ? '#0c0e14' : '#f5f7fb'
+  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', color)
+}
+
+watch(showcase, updateThemeColor)
+
 function applyTheme(nextTheme: ThemeMode): void {
   theme.value = nextTheme
   document.documentElement.dataset.theme = nextTheme
-  document
-    .querySelector('meta[name="theme-color"]')
-    ?.setAttribute('content', nextTheme === 'dark' ? '#0c0e14' : '#f5f7fb')
+  updateThemeColor()
   try {
     localStorage.setItem('cpe-theme', nextTheme)
   } catch {
@@ -59,12 +60,6 @@ function toggleTheme(): void {
 }
 
 onMounted(() => {
-  if (topMarker.value && typeof IntersectionObserver !== 'undefined') {
-    topObserver = new IntersectionObserver(([entry]) => {
-      atTop.value = entry?.isIntersecting ?? false
-    })
-    topObserver.observe(topMarker.value)
-  }
   const existing = document.documentElement.dataset.theme
   let saved: string | null = null
   try {
@@ -83,11 +78,10 @@ onMounted(() => {
 </script>
 
 <template>
-  <div ref="topMarker" class="top-marker" aria-hidden="true"></div>
   <header
     ref="header"
     class="topbar"
-    :class="{ 'over-hero': atTop && route.path === '/' }"
+    :class="{ 'showcase-topbar': showcase }"
     @keydown.esc="closeMenu"
   >
     <RouterLink class="brand-lockup" to="/" aria-label="CPE加加首页">
