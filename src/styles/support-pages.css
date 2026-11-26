@@ -1,6 +1,6 @@
 /* Page-local classes share the shell's colours, type and content width. */
 .sp-page {
-  padding-block: clamp(108px, 10vw, 144px) clamp(56px, 8vw, 96px);
+  padding-block: calc(var(--site-header-height) + clamp(24px, 5vw, 60px)) clamp(36px, 6vw, 72px);
   color: var(--ink);
   overflow-wrap: anywhere;
   font-variant-numeric: tabular-nums;
@@ -17,14 +17,14 @@
   align-items: end;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: 12px 32px;
+  gap: 8px 28px;
   margin-bottom: clamp(24px, 3vw, 40px);
 }
 .sp-header h1 {
   font-family: var(--font-display);
-  font-size: clamp(32px, 4vw, 48px);
-  line-height: 1.2;
-  font-weight: 680;
+  font-size: var(--site-title-size);
+  line-height: 1.16;
+  font-weight: var(--site-title-weight);
   letter-spacing: -0.035em;
 }
 .sp-header p:not(.sp-wordmark),
@@ -32,8 +32,8 @@
 .sp-release-body > p {
   max-width: 44em;
   color: var(--muted);
-  font-size: 16px;
-  line-height: 1.8;
+  font-size: var(--site-body-size);
+  line-height: 1.65;
 }
 .sp-header h1 + p {
   margin-top: 12px;
@@ -48,9 +48,9 @@
 .sp-links a {
   display: inline-flex;
   align-items: center;
-  min-height: 44px;
+  min-height: var(--site-control-size);
   color: var(--accent);
-  font-size: 14px;
+  font-size: var(--site-meta-size);
   font-weight: 550;
   text-decoration: underline;
   text-decoration-color: var(--line-strong);
@@ -78,16 +78,21 @@
 /* Download */
 .sp-filters {
   display: flex;
-  gap: 8px;
-  border-bottom: 1px solid var(--line-strong);
+  width: fit-content;
+  max-width: 100%;
+  gap: 3px;
+  margin-bottom: 16px;
+  padding: 3px;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  background: var(--paper);
 }
 .sp-filters button {
-  min-height: 48px;
-  margin-bottom: -1px;
-  padding: 0 16px;
-  border-bottom: 3px solid transparent;
+  min-height: var(--site-control-size);
+  padding: 4px 14px;
+  border-radius: 7px;
   color: var(--muted);
-  font-size: 15px;
+  font-size: var(--site-meta-size);
   font-weight: 550;
   cursor: pointer;
 }
@@ -96,25 +101,33 @@
   color: var(--accent);
 }
 .sp-filters button[aria-pressed='true'] {
-  border-bottom-color: currentColor;
+  background: color-mix(in srgb, var(--accent) 12%, var(--paper));
+  font-weight: 650;
+}
+.sp-packages {
+  border: 1px solid var(--line);
+  border-radius: var(--page-panel-radius);
+  background: var(--paper);
 }
 .sp-package {
   display: grid;
   grid-template-columns: 54px minmax(0, 1fr) auto;
   align-items: center;
   gap: 12px 22px;
-  padding-block: 26px;
-  border-bottom: 1px solid var(--line);
+  padding: clamp(14px, 2.4vw, 26px);
+}
+.sp-package + .sp-package {
+  border-top: 1px solid var(--line);
 }
 .sp-format {
   display: grid;
   place-items: center;
   width: 54px;
   aspect-ratio: 1;
-  border: 1px solid var(--line-strong);
-  border-radius: 6px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
   color: var(--accent);
-  background: var(--paper);
+  background: var(--soft);
   font: 600 15px var(--mono);
 }
 .sp-package-title,
@@ -137,15 +150,20 @@
   font-size: 13px;
   font-weight: 550;
 }
+.sp-package-title small {
+  padding: 2px 7px;
+  border-radius: 5px;
+  background: color-mix(in srgb, var(--accent) 8%, var(--paper));
+}
 .sp-package-info > p {
   margin-top: 5px;
   color: var(--muted);
-  font-size: 15px;
+  font-size: var(--site-body-size);
 }
 .sp-meta {
   margin-top: 8px;
   color: var(--muted);
-  font-size: 13px;
+  font-size: var(--site-meta-size);
 }
 .sp-meta span:first-child,
 .sp-release time {
@@ -161,8 +179,9 @@
   gap: 8px;
 }
 .sp-package .action {
+  min-height: var(--site-control-size);
   padding: 4px 8px;
-  border-radius: 6px;
+  border-radius: 9px;
   box-shadow: none;
 }
 .sp-package .download-progress {
@@ -268,8 +287,8 @@
   padding-inline-start: 1.3em;
   list-style: disc;
   color: var(--muted);
-  font-size: 15px;
-  line-height: 1.8;
+  font-size: var(--site-body-size);
+  line-height: 1.7;
 }
 .sp-release-body li::marker {
   color: var(--accent);
@@ -315,7 +334,7 @@
   display: grid;
   grid-template-columns: minmax(160px, 1fr) minmax(0, 3fr);
   gap: 12px 32px;
-  border-top: 1px solid var(--line-strong);
+  border-top: 1px solid var(--line);
   padding-block: clamp(22px, 3vw, 36px);
 }
 .sp-people li {
@@ -357,14 +376,10 @@
 }
 
 @media (max-width: 720px) {
-  .sp-page {
-    padding-top: 96px;
-  }
   .sp-package {
     grid-template-columns: 44px minmax(0, 1fr);
     align-items: start;
-    column-gap: 14px;
-    padding-block: 20px;
+    column-gap: 12px;
   }
   .sp-format {
     width: 44px;
@@ -393,14 +408,23 @@
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 0;
+    width: 100%;
   }
   .sp-filters button {
     padding-inline: 2px;
-    font-size: 14px;
+    font-size: var(--site-meta-size);
   }
   .sp-package .download-actions {
     grid-column: 1 / -1;
     width: 100%;
+  }
+  .sp-package-title {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .sp-download-note {
+    padding-top: 14px;
   }
   .sp-release summary h2 {
     grid-template-columns: minmax(0, 1fr) 18px;

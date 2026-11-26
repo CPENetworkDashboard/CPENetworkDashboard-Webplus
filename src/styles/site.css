@@ -3103,32 +3103,3 @@ p {
     translate: 0 0;
   }
 }
-
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: var(--soft);
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--muted);
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--ink);
-}
-:root[data-theme='dark'] ::-webkit-scrollbar-track {
-  background: #1a1a1a;
-}
-
-:root[data-theme='dark'] ::-webkit-scrollbar-thumb {
-  background: #404040;
-}
-
-:root[data-theme='dark'] ::-webkit-scrollbar-thumb:hover {
-  background: #606060;
-}

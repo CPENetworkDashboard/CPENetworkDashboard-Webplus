@@ -31,6 +31,11 @@
   --mono: var(--font-sans);
   font-family: var(--font-sans);
   font-variant-numeric: tabular-nums;
+  --site-title-size: clamp(2rem, 4.25vw, 3.25rem);
+  --site-title-weight: 650;
+  --site-body-size: 1rem;
+  --site-meta-size: 0.875rem;
+  --site-control-size: 2.75rem;
 }
 
 /* Native controls and code elements can otherwise use a user-agent font. */
@@ -39,20 +44,21 @@
 }
 
 /* These mocks and lazy-loaded Leaflet styles explicitly set their own font families. */
-#app :is(
-  .landing-devices > div > span,
-  .am,
-  .pm,
-  .am-mini strong,
-  .am-tile strong,
-  .am-bands span,
-  .am-input,
-  .am-source span,
-  .am-slider b,
-  .leaflet-container,
-  .leaflet-control-zoom-in,
-  .leaflet-control-zoom-out,
-  .leaflet-popup-close-button
-) {
+#app
+  :is(
+    .landing-devices > div > span,
+    .am,
+    .pm,
+    .am-mini strong,
+    .am-tile strong,
+    .am-bands span,
+    .am-input,
+    .am-source span,
+    .am-slider b,
+    .leaflet-container,
+    .leaflet-control-zoom-in,
+    .leaflet-control-zoom-out,
+    .leaflet-popup-close-button
+  ) {
   font-family: var(--font-sans);
 }

@@ -118,7 +118,8 @@ const stateLabel: Record<string, string> = {
       <div>
         <h2>{{ banner.title }}</h2>
         <p v-if="latest">
-          最近检查：{{ time(latest.at) }}<template v-if="ageLabel">（{{ ageLabel }}）</template>
+          最近检查 <time :datetime="latest.at">{{ time(latest.at) }}</time
+          ><template v-if="ageLabel">（{{ ageLabel }}）</template>
         </p>
         <p v-else-if="error">{{ error }}</p>
       </div>
@@ -137,7 +138,11 @@ const stateLabel: Record<string, string> = {
           </div>
           <span class="st-pill"><i aria-hidden="true"></i>{{ stateLabel[row.state] }}</span>
         </div>
-        <div class="st-days" :aria-label="row.name + '近 30 天记录'">
+        <div
+          class="st-days"
+          role="img"
+          :aria-label="row.name + '近 30 天可用率 ' + percent(row.availability)"
+        >
           <i
             v-for="day in daily"
             :key="day.date"

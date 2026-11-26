@@ -551,7 +551,7 @@ watch(cities, () => {
 </script>
 
 <template>
-  <div class="analytics-page">
+  <div class="analytics-page" :class="{ 'analytics-locked': !authorized }">
     <Teleport v-if="authorized" to="body">
       <button
         class="mobile-section-toggle"
@@ -604,12 +604,12 @@ watch(cities, () => {
           v-model="token"
           type="password"
           autocomplete="current-password"
-          placeholder="输入服务端统计 token"
+          placeholder="输入统计密码"
           required
         />
         <button type="submit">查看统计</button>
       </div>
-      <p v-if="errorMessage">{{ errorMessage }}</p>
+      <p v-if="errorMessage" role="alert">{{ errorMessage }}</p>
     </form>
 
     <template v-else>
@@ -882,11 +882,10 @@ watch(cities, () => {
   max-width: 620px;
   display: grid;
   gap: 12px;
-  padding: 22px;
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius-md);
-  background: var(--glass-bg);
-  box-shadow: var(--glass-shadow);
+  padding: clamp(14px, 3vw, 22px);
+  border: 1px solid var(--line);
+  border-radius: var(--page-panel-radius);
+  background: var(--paper);
 }
 
 .analytics-gate label {
@@ -900,8 +899,12 @@ watch(cities, () => {
   gap: 10px;
 }
 
+.analytics-gate :is(input, button) {
+  min-height: var(--site-control-size);
+  font-size: var(--site-body-size);
+}
+
 .analytics-gate input {
-  min-height: 44px;
   border: 1px solid var(--line);
   border-radius: var(--radius-sm);
   padding: 0 12px;
@@ -910,12 +913,13 @@ watch(cities, () => {
   outline: none;
 }
 
-.analytics-gate input:focus {
+.analytics-gate input:focus-visible {
   border-color: var(--accent);
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 .analytics-gate button {
-  min-height: 44px;
   border: 1px solid transparent;
   border-radius: var(--radius-sm);
   padding: 0 16px;
@@ -924,10 +928,14 @@ watch(cities, () => {
   cursor: pointer;
 }
 
+.analytics-gate button:hover {
+  background: var(--button-hover);
+}
+
 .analytics-gate p {
   margin: 0;
-  color: #8e4c22;
-  font-size: 14px;
+  color: var(--ink);
+  font-size: var(--site-meta-size);
 }
 
 /* ── Glass Panel ──────────────────────────────────────── */
@@ -2200,6 +2208,31 @@ watch(cities, () => {
 
   .breakdown-table tr {
     padding-right: 40px;
+  }
+}
+
+.analytics-page.analytics-locked {
+  width: min(var(--page-width), calc(100% - 2 * var(--site-gutter)));
+  padding-block: calc(var(--site-header-height) + clamp(24px, 5vw, 60px)) clamp(36px, 6vw, 72px);
+  animation: none;
+}
+
+.analytics-locked .analytics-header {
+  margin-bottom: clamp(16px, 2vw, 28px);
+}
+
+.analytics-locked .analytics-header h1 {
+  font-size: var(--site-title-size);
+  font-weight: var(--site-title-weight);
+  line-height: 1.16;
+  letter-spacing: -0.035em;
+  background: none;
+  -webkit-text-fill-color: currentColor;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .analytics-page {
+    animation: none;
   }
 }
 

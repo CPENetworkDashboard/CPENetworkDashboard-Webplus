@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import SiteIcon from '@/components/SiteIcon.vue'
 import { appIcon, routes } from '@/content'
@@ -10,13 +10,35 @@ const theme = ref<ThemeMode>('light')
 const isDark = computed(() => theme.value === 'dark')
 const menuOpen = ref(false)
 const route = useRoute()
-const showcase = computed(() => route.path === '/' || route.path === '/product')
 const header = ref<HTMLElement>()
 const menuToggle = ref<HTMLButtonElement>()
+const navigation = ref<HTMLElement>()
 function closeMenu() {
   if (!menuOpen.value) return
   menuOpen.value = false
   menuToggle.value?.focus()
+}
+async function toggleMenu() {
+  if (menuOpen.value) {
+    closeMenu()
+    return
+  }
+  menuOpen.value = true
+  await nextTick()
+  if (menuOpen.value) navigation.value?.querySelector('a')?.focus({ preventScroll: true })
+}
+function followMenuLink(event: MouseEvent) {
+  if (
+    !menuOpen.value ||
+    event.button !== 0 ||
+    event.metaKey ||
+    event.ctrlKey ||
+    event.shiftKey ||
+    event.altKey
+  )
+    return
+  menuOpen.value = false
+  document.getElementById('main-content')?.focus({ preventScroll: true })
 }
 function dismissOutside(event: PointerEvent) {
   if (event.target instanceof Node && !header.value?.contains(event.target)) menuOpen.value = false
@@ -38,11 +60,9 @@ function preferredTheme(): ThemeMode {
 }
 
 function updateThemeColor() {
-  const color = showcase.value ? '#131f2d' : isDark.value ? '#0c0e14' : '#f5f7fb'
+  const color = isDark.value ? '#101621' : '#f7f9fc'
   document.querySelector('meta[name="theme-color"]')?.setAttribute('content', color)
 }
-
-watch(showcase, updateThemeColor)
 
 function applyTheme(nextTheme: ThemeMode): void {
   theme.value = nextTheme
@@ -78,22 +98,15 @@ onMounted(() => {
 </script>
 
 <template>
-  <header
-    ref="header"
-    class="topbar"
-    :class="{ 'showcase-topbar': showcase }"
-    @keydown.esc="closeMenu"
-  >
+  <header ref="header" class="topbar" @keydown.esc="closeMenu">
     <RouterLink class="brand-lockup" to="/" aria-label="CPE加加首页">
       <img :src="appIcon" alt="" width="36" height="36" loading="eager" decoding="async" />
-      <span>
-        <strong>CPE加加</strong>
-        <small>CPE++</small>
-      </span>
+      <strong>CPE加加</strong>
     </RouterLink>
     <div class="topbar-actions">
       <nav
         id="main-navigation"
+        ref="navigation"
         class="nav-links"
         :class="{ 'is-open': menuOpen }"
         aria-label="主导航"
@@ -104,6 +117,7 @@ onMounted(() => {
           :to="navItem.path"
           :class="{ active: $route.path === navItem.path }"
           :aria-current="$route.path === navItem.path ? 'page' : undefined"
+          @click="followMenuLink"
         >
           {{ navItem.label }}
         </RouterLink>
@@ -133,7 +147,7 @@ onMounted(() => {
         aria-controls="main-navigation"
         :aria-expanded="menuOpen"
         :aria-label="menuOpen ? '关闭导航' : '打开导航'"
-        @click="menuOpen = !menuOpen"
+        @click="toggleMenu"
       >
         <SiteIcon :name="menuOpen ? 'close' : 'menu'" />
       </button>

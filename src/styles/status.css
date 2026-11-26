@@ -1,7 +1,15 @@
 .st {
+  --status-ok: #17694b;
+  --status-attention: #8d510b;
+  --status-error: #ac302d;
   max-width: 960px;
-  padding-top: clamp(120px, 12vw, 150px);
-  padding-bottom: 96px;
+  padding-top: calc(var(--site-header-height) + clamp(24px, 5vw, 60px));
+  padding-bottom: clamp(36px, 6vw, 72px);
+}
+:root[data-theme='dark'] .st {
+  --status-ok: #86d6ae;
+  --status-attention: #f4c381;
+  --status-error: #ffada7;
 }
 .st-head {
   display: flex;
@@ -11,52 +19,57 @@
 }
 .st-head h1 {
   margin: 0;
-  font-size: clamp(32px, 4.4vw, 48px);
-  font-weight: 700;
+  font-size: var(--site-title-size);
+  font-weight: var(--site-title-weight);
+  line-height: 1.16;
   letter-spacing: -0.035em;
 }
 .st-head p {
   margin: 10px 0 0;
   color: var(--muted);
-  font-size: 16px;
+  font-size: var(--site-body-size);
 }
 .st-refresh {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  min-height: 40px;
+  min-height: var(--site-control-size);
   padding: 0 16px;
   border: 1px solid var(--line-strong);
-  border-radius: 999px;
+  border-radius: 9px;
   background: var(--paper);
   color: var(--ink);
   font: inherit;
-  font-size: 14px;
+  font-size: var(--site-meta-size);
   cursor: pointer;
+}
+.st-refresh:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--accent);
 }
 .st-refresh:disabled {
   opacity: 0.6;
   cursor: default;
 }
 .st-banner {
-  --tone: #64748b;
+  --tone: var(--muted);
   display: flex;
   align-items: center;
   gap: 18px;
   margin-top: 32px;
-  padding: 24px 26px;
+  padding: clamp(14px, 3vw, 24px);
   border: 1px solid color-mix(in srgb, var(--tone) 35%, transparent);
-  border-radius: 22px;
-  background: color-mix(in srgb, var(--tone) 9%, var(--paper));
+  border-radius: var(--page-panel-radius);
+  background: color-mix(in srgb, var(--tone) 7%, var(--paper));
 }
 .st-banner[data-state='operational'] {
-  --tone: #16a34a;
+  --tone: var(--status-ok);
 }
 .st-banner[data-state='partial'] {
-  --tone: #d97706;
+  --tone: var(--status-attention);
 }
 .st-banner[data-state='unavailable'] {
-  --tone: #dc2626;
+  --tone: var(--status-error);
 }
 .st-banner-icon {
   display: grid;
@@ -64,13 +77,13 @@
   width: 46px;
   height: 46px;
   flex: none;
-  border-radius: 50%;
-  background: var(--tone);
-  color: #fff;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--tone) 15%, var(--paper));
+  color: var(--tone);
 }
 .st-banner h2 {
   margin: 0;
-  font-size: 22px;
+  font-size: clamp(1.08rem, 2.8vw, 1.38rem);
   font-weight: 650;
 }
 .st-banner p {
@@ -97,22 +110,22 @@
   padding: 0;
   overflow: hidden;
   border: 1px solid var(--line);
-  border-radius: 22px;
+  border-radius: var(--page-panel-radius);
   background: var(--paper);
   list-style: none;
 }
 .st-list > li {
-  --tone: #94a3b8;
-  padding: 20px 24px;
+  --tone: var(--muted);
+  padding: clamp(14px, 2.5vw, 22px);
 }
 .st-list > li + li {
   border-top: 1px solid var(--line);
 }
 .st-list > li[data-state='operational'] {
-  --tone: #16a34a;
+  --tone: var(--status-ok);
 }
 .st-list > li[data-state='unavailable'] {
-  --tone: #dc2626;
+  --tone: var(--status-error);
 }
 .st-name {
   display: flex;
@@ -147,13 +160,14 @@
   color: var(--tone);
   font-size: 14px;
   font-weight: 600;
+  flex: none;
+  white-space: nowrap;
 }
 .st-pill i {
   width: 8px;
   height: 8px;
   border-radius: 50%;
   background: var(--tone);
-  box-shadow: 0 0 0 4px color-mix(in srgb, var(--tone) 18%, transparent);
 }
 .st-days {
   display: grid;
@@ -180,11 +194,15 @@
   opacity: 0.7;
 }
 .st-axis {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: baseline;
   margin-top: 8px;
   color: var(--muted);
   font-size: 12px;
+}
+.st-axis span:last-child {
+  text-align: end;
 }
 .st-summary {
   display: grid;
@@ -195,7 +213,7 @@
 .st-summary > div {
   padding: 22px 24px;
   border: 1px solid var(--line);
-  border-radius: 20px;
+  border-radius: var(--page-panel-radius);
   background: var(--paper);
 }
 .st-summary small {
@@ -239,17 +257,28 @@
     flex-direction: column;
   }
   .st-banner {
-    flex-wrap: wrap;
-    padding: 20px;
+    display: grid;
+    grid-template-columns: 44px minmax(0, 1fr);
+    gap: 6px 11px;
   }
   .st-count {
-    margin-left: 64px;
+    grid-column: 2;
+    margin-left: 0;
+    line-height: 1.2;
   }
-  .st-list > li {
-    padding: 18px;
+  .st-name {
+    gap: 9px;
+  }
+  .st-days {
+    gap: 2px;
+  }
+  .st-axis {
+    grid-template-columns: 1fr 1fr;
+    gap: 2px 8px;
   }
   .st-axis span:nth-child(2) {
-    display: none;
+    grid-row: 2;
+    grid-column: 1 / -1;
   }
   .st-summary {
     grid-template-columns: 1fr;

@@ -16,13 +16,13 @@ const downloadsForPlatform = ['Android', 'macOS', 'Windows'].map((name) => ({
 <template>
   <div class="overview">
     <AndroidShowcase home />
-    <div class="vendor-strip content-width">
-      <span>适配设备厂商</span>
+    <section class="vendor-strip content-width" aria-labelledby="vendors-title">
+      <h2 id="vendors-title">适配设备厂商</h2>
       <ul>
         <li v-for="[vendor] in supportedDevices" :key="vendor">{{ vendor.split(' / ')[1] }}</li>
       </ul>
       <RouterLink :to="{ path: '/product', hash: '#devices' }">查询机型</RouterLink>
-    </div>
+    </section>
     <section class="platform-shelf content-width" aria-labelledby="get-title">
       <header>
         <h2 id="get-title">获取 CPE加加</h2>

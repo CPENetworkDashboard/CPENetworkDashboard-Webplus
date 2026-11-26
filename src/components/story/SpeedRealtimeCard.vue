@@ -99,7 +99,7 @@ const axis = (value: number) => {
       </div>
     </div>
     <div class="pm-speed-times" aria-hidden="true">
-      <span>-30秒</span><span>-15秒</span><span>现在</span>
+      <span>−30 秒</span><span>−15 秒</span><span>现在</span>
     </div>
     <dl>
       <div>

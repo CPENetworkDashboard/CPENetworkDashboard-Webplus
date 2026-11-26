@@ -13,6 +13,7 @@ const chapters = props.home
     )
   : allChapters
 const desktopIndex = chapters.findIndex((chapter) => chapter.platform === 'macOS / Windows')
+const introduction = '查看 4G / 5G 信号、锁频和测速，适用于 Android、macOS 和 Windows。'
 const track = ref<HTMLElement | null>(null)
 const stage = ref<HTMLElement | null>(null)
 const { active, progress, reduced } = useScrollFilm(track, stage, chapters.length)
@@ -37,7 +38,6 @@ function platformAnchor(index: number) {
   >
     <template v-if="!reduced">
       <div ref="stage" class="film-stage">
-        <div class="film-haze" aria-hidden="true"></div>
         <div class="film-sheet content-width">
           <div class="film-script">
             <div class="film-copy-stack">
@@ -50,29 +50,22 @@ function platformAnchor(index: number) {
               >
                 <p class="film-label">
                   {{ home && index === 0 ? 'CPE加加' : item.platform }}
-                  <span aria-hidden="true">/</span>
-                  {{ home && index === 0 ? 'Android' : item.label }}
                 </p>
-                <h1 v-if="home && index === 0" id="home-title">看清信号，<br />再调频段。</h1>
+                <h1 v-if="home && index === 0" id="home-title">看清信号，<br />再调频段</h1>
                 <h2 v-else>{{ item.heading }}</h2>
                 <p class="film-description">
-                  {{
-                    home && index === 0
-                      ? '查看 4G / 5G 信号和邻区，调整频段后直接测速。'
-                      : item.copy
-                  }}
+                  {{ home && index === 0 ? introduction : item.copy }}
                 </p>
               </div>
             </div>
             <div class="film-actions">
               <RouterLink class="launch-download" to="/download"
                 ><SiteIcon name="download" :size="17" />下载 CPE加加</RouterLink
-              ><RouterLink v-if="home" class="film-link" to="/product">产品介绍</RouterLink>
+              ><RouterLink v-if="home" class="film-link" to="/product">查看功能</RouterLink>
             </div>
           </div>
           <figure class="film-figure" :aria-label="shot.caption + '，示例数据'">
             <div class="film-visual" aria-hidden="true">
-              <div class="film-orbits"><i></i><i></i><i></i></div>
               <div :key="platform" class="film-art">
                 <FilmArtwork :scene="shot.scene" :progress />
               </div>
@@ -119,8 +112,9 @@ function platformAnchor(index: number) {
     </template>
     <div v-else class="film-transcript content-width">
       <header v-if="home">
-        <p class="film-label">CPE加加 / CPE++</p>
-        <h1>看清信号，再调频段。</h1>
+        <p class="film-label">CPE加加</p>
+        <h1>看清信号，再调频段</h1>
+        <p class="film-description">{{ introduction }}</p>
         <RouterLink class="launch-download" to="/download"
           ><SiteIcon name="download" :size="17" />下载 CPE加加</RouterLink
         >

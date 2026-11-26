@@ -29,8 +29,7 @@ const filteredDevices = computed(() =>
       <section id="devices" class="guide-section device-directory" aria-labelledby="devices-title">
         <div class="section-intro">
           <div>
-            <p class="section-kicker">设备兼容性</p>
-            <h2 id="devices-title">查找你的 CPE</h2>
+            <h2 id="devices-title">设备兼容性</h2>
             <p>锁频、锁小区等功能取决于具体机型和固件。</p>
           </div>
           <label class="device-search"

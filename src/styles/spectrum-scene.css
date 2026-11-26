@@ -275,7 +275,7 @@
 
 .android-screen .spectrum-scene {
   --sp-surface: var(--android-surface);
-  --sp-line: var(--android-outline);
+  --sp-line: color-mix(in srgb, var(--android-outline) 76%, var(--android-surface));
   --sp-ink: var(--android-text);
   --sp-muted: var(--android-muted);
   --sp-blue: #2262c5;
@@ -326,7 +326,7 @@
   font-size: clamp(9px, 3.1cqw, 12px);
 }
 .android-screen .pm-speed-card :is(dt, .pm-speed-axis, .pm-speed-times) {
-  font-size: clamp(7px, min(3.1cqw, 3.1cqh), 10px);
+  font-size: clamp(8px, min(3.2cqw, 3.1cqh), 11px);
 }
 .android-screen .pm-speed-card dd {
   font-size: clamp(8px, 3.2cqw, 12px);
@@ -392,7 +392,18 @@
 .android-screen .sp-hotspots li {
   font-size: clamp(9px, 3.6cqw, 12px);
 }
+.sp-hotspots li b {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 @container spectrum (max-height: 250px) {
+  .android-screen .pm-speed-card {
+    padding-block: 3px;
+  }
+  .android-screen .pm-speed-card :is(dt, .pm-speed-axis, .pm-speed-times) {
+    font-size: 7px;
+  }
   .android-screen .pm-speed-card > header span {
     display: none;
   }
