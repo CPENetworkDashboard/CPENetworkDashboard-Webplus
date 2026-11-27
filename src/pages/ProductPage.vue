@@ -14,18 +14,8 @@ const filteredDevices = computed(() =>
 
 <template>
   <div class="guide-backdrop">
-    <div class="product-guide-head">
-      <header class="product-guide-intro content-width">
-        <h1>产品功能</h1>
-        <nav class="guide-index" aria-label="产品目录">
-          <RouterLink :to="{ path: '/product', hash: '#mobile' }">Android</RouterLink>
-          <RouterLink :to="{ path: '/product', hash: '#desktop' }">桌面端</RouterLink>
-          <RouterLink :to="{ path: '/product', hash: '#devices' }">设备兼容性</RouterLink>
-        </nav>
-      </header>
-    </div>
     <AndroidShowcase />
-    <div class="product-guide content-width film-after">
+    <div class="product-guide content-width showcase-compat">
       <section id="devices" class="guide-section device-directory" aria-labelledby="devices-title">
         <div class="section-intro">
           <div>

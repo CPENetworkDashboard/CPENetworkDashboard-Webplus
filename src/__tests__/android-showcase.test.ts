@@ -1,24 +1,31 @@
 import { mount, flushPromises, RouterLinkStub, type VueWrapper } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import AndroidShowcase from '@/components/AndroidShowcase.vue'
-import { chapters, linkedScene, type SceneId } from '@/components/story/film'
+import { chapters, linkedScene } from '@/components/story/film'
 
 let view: VueWrapper | undefined
-let reduced = false
-let top = 0
 let clock = 0
-let frames: Map<number, FrameRequestCallback>
 let serial = 0
-let setVisible: (value: boolean) => void
+let frames: Map<number, FrameRequestCallback>
+let observed: Set<Element>
+let emitEntries: IntersectionObserverCallback
+let prefersReducedMotion = false
+let changePreference: () => void
+const disconnect = vi.fn()
 
 beforeEach(() => {
-  reduced = false
-  top = 0
   clock = 0
   frames = new Map()
+  observed = new Set()
+  prefersReducedMotion = false
+  disconnect.mockClear()
   vi.stubGlobal('matchMedia', () => ({
-    matches: reduced,
-    addEventListener() {},
+    get matches() {
+      return prefersReducedMotion
+    },
+    addEventListener(_event: string, cb: () => void) {
+      changePreference = cb
+    },
     removeEventListener() {},
   }))
   vi.stubGlobal('requestAnimationFrame', (cb: FrameRequestCallback) => {
@@ -29,141 +36,164 @@ beforeEach(() => {
   vi.stubGlobal(
     'IntersectionObserver',
     class {
-      constructor(cb: (entries: { isIntersecting: boolean }[]) => void) {
-        setVisible = (value) => cb([{ isIntersecting: value }])
+      constructor(cb: IntersectionObserverCallback) {
+        emitEntries = cb
       }
-      observe() {
-        setVisible(true)
+      observe(target: Element) {
+        observed.add(target)
       }
-      disconnect() {}
+      disconnect() {
+        observed.clear()
+        disconnect()
+      }
     }
   )
 })
+
 afterEach(() => {
   view?.unmount()
   view = undefined
   vi.unstubAllGlobals()
 })
 
-function render() {
-  view = mount(AndroidShowcase, { global: { stubs: { RouterLink: RouterLinkStub } } })
-  const track = view.element as HTMLElement
-  Object.defineProperty(track, 'offsetHeight', { value: 3500 })
-  vi.spyOn(track, 'getBoundingClientRect').mockImplementation(() => ({ top }) as DOMRect)
-  const stage = track.querySelector<HTMLElement>('.film-stage')
-  if (stage) {
-    Object.defineProperty(stage, 'clientHeight', { value: 500 })
-    Object.defineProperty(stage, 'offsetHeight', { value: 500 })
-  }
+function render(home = false) {
+  view = mount(AndroidShowcase, {
+    props: { home },
+    global: { stubs: { RouterLink: RouterLinkStub } },
+  })
   return view
 }
-async function advance(count = 1) {
+
+function visibility(target: Element, ratio: number) {
+  expect(observed.has(target)).toBe(true)
+  emitEntries(
+    [{ target, isIntersecting: ratio > 0, intersectionRatio: ratio } as IntersectionObserverEntry],
+    {} as IntersectionObserver
+  )
+}
+
+async function tick(count = 1) {
   for (let i = 0; i < count; i++) {
     const pending = [...frames.values()]
     frames.clear()
-    clock += 50
-    for (const cb of pending) cb(clock)
+    clock += 40
+    for (const frame of pending) frame(clock)
   }
   await flushPromises()
 }
 
-async function seek(scene: SceneId, portion = 0.1) {
-  const index = chapters.findIndex((chapter) => chapter.scene === scene)
-  top = -((index + portion) * 3000) / chapters.length
-  window.dispatchEvent(new Event('scroll'))
-  await advance()
+function getStyle(node: Element, variable: string) {
+  return Number((node as HTMLElement).style.getPropertyValue(variable))
 }
 
 describe('product presentation', () => {
-  it('opens on Android, assembles its panels automatically and holds the completed view', async () => {
-    const page = render()
-    await advance()
-    expect(page.attributes('data-shot')).toBe('connect')
-    await advance(92)
-    expect(page.attributes('data-settled')).toBe('true')
-    expect(frames.size).toBe(0)
-    await advance(140)
-    expect(page.attributes('data-shot')).toBe('connect')
-    expect(page.findAll('.hero-panel')).toHaveLength(3)
-    expect(page.get('.hero-rf').text()).toContain('-87')
-    expect(page.get('.android-dock').text()).toBe('连接锁频测试设置')
-    expect(page.get('.rs-cell').attributes('data-carrier')).toBe('NR SCC1')
-    const assembled = page.get('.hero-assembly').html()
-    await seek('neighbors')
-    expect(page.get('.rs-device-stats').findAll('dt')).toHaveLength(13)
-    expect(page.get('.rs-neighbor-list').text()).toContain('265/1')
-    await seek('lock')
+  it('keeps the Android opening and the later features in page order without demo controls', () => {
+    const page = render(true)
     expect(
-      page
-        .get('.rs-lock-tabs')
-        .findAll('li')
-        .map((tab) => tab.text())
-    ).toEqual(['网络首选', '锁频段', '锁频点', '锁小区'])
-    await seek('speed')
-    expect(page.find('.android-handset').exists()).toBe(false)
-    expect(page.findAll('.film-assembly .pm-speed-card')).toHaveLength(2)
-    await advance(92)
-    expect(page.get('.pm-speed-card.down .pm-speed-headline strong').text()).toBe('508')
-    expect(page.get('.pm-speed-card.up .pm-speed-headline strong').text()).toBe('84.2')
-    await seek('desktop-lock')
-    expect(page.attributes('data-shot')).toBe('desktop-lock')
-    await seek('connect')
-    expect(page.get('.hero-assembly').html()).toBe(assembled)
-    expect(page.find('button, input, select, [tabindex], [role="tab"]').exists()).toBe(false)
+      page.findAll('.showcase-preview').map((preview) => preview.attributes('data-preview'))
+    ).toEqual(['connect', 'neighbors', 'lock', 'speed', 'wifi', 'desktop-connect'])
+    expect(page.findAll('.hero-panel')).toHaveLength(3)
+    expect(page.get('.android-dock').text()).toBe('连接锁频测试设置')
+    expect(
+      page.find('.showcase-preview button, .showcase-preview input, .showcase-preview a').exists()
+    ).toBe(false)
   })
-  it('moves the completed shot with scroll and keeps the next shot in the same stage', async () => {
+
+  it('plays the visible take once, pauses away from it and holds the completed frame on return', async () => {
     const page = render()
-    await advance(92)
-    const stage = page.get('.film-stage').element
-    const camera = () =>
-      (page.get('.film-art').element as HTMLElement).style.getPropertyValue('--camera-travel')
-    expect(Number(camera())).toBe(0)
-    await seek('connect', 0.92)
-    expect(page.attributes('data-settled')).toBe('true')
-    expect(Number(camera())).toBeGreaterThan(0)
-    await seek('links', 0.04)
-    expect(page.get('.film-stage').element).toBe(stage)
-    expect(page.get('.film-art').attributes('data-scene')).toBe('links')
-    expect(Number(camera())).toBe(0)
+    const opening = page.get('[data-preview=connect]')
+    const speed = page.get('[data-preview=speed]')
+    visibility(opening.element, 0.9)
+    await tick(22)
+    expect(opening.attributes('data-held')).toBe('false')
+    expect(speed.attributes('data-held')).toBe('false')
+    visibility(opening.element, 0)
+    await tick()
+    const paused = opening.html()
+    await tick(80)
+    expect(opening.html()).toBe(paused)
+    expect(frames.size).toBe(0)
+
+    visibility(opening.element, 1)
+    await tick(70)
+    expect(opening.attributes('data-held')).toBe('true')
+    expect(opening.get('.rs-cell').attributes('data-carrier')).toBe('NR SCC1')
+    expect(opening.get('.hero-rf').text()).toContain('-87')
+    const completed = opening.html()
+    visibility(opening.element, 0)
+    visibility(opening.element, 1)
+    await tick(80)
+    expect(opening.html()).toBe(completed)
+
+    visibility(speed.element, 0.12)
+    await tick(80)
+    expect(speed.attributes('data-held')).toBe('false')
+    visibility(speed.element, 0.8)
+    await tick(70)
+    expect(speed.get('.pm-speed-card.down .pm-speed-headline strong').text()).toBe('508')
+    expect(speed.get('.pm-speed-card.up .pm-speed-headline strong').text()).toBe('84.2')
+    expect(speed.attributes('data-held')).toBe('true')
+    expect(frames.size).toBe(0)
   })
-  it('suspends animation outside the viewport and removes the pending frame on unmount', async () => {
-    render()
-    await advance(3)
-    setVisible(false)
-    expect(frames.size).toBe(0)
-    window.dispatchEvent(new Event('scroll'))
-    expect(frames.size).toBe(0)
-    setVisible(true)
-    await advance()
+
+  it('follows native scroll in both directions without replacing or pinning the chapters', async () => {
+    const page = render()
+    const hero = page.get('.showcase-hero').element
+    const artwork = page.get('.showcase-hero-art').element
+    const neighbor = page.get('[data-preview=neighbors]').element
+    let heroTop = 0
+    let neighborTop = innerHeight * 0.94
+    const rect = (top: number, height: number) => ({ top, height }) as DOMRect
+    vi.spyOn(hero, 'getBoundingClientRect').mockImplementation(() => rect(heroTop, 640))
+    vi.spyOn(neighbor, 'getBoundingClientRect').mockImplementation(() => rect(neighborTop, 350))
+    const scrollTo = vi.spyOn(window, 'scrollTo').mockImplementation(() => {})
+    try {
+      visibility(hero, 0.6)
+      visibility(neighbor, 0.1)
+      await tick()
+      expect(getStyle(artwork, '--camera-travel')).toBe(0)
+      expect(getStyle(neighbor, '--arrival')).toBeGreaterThan(0.7)
+
+      heroTop = -320
+      neighborTop = innerHeight * 0.4
+      window.dispatchEvent(new Event('scroll'))
+      await tick()
+      expect(getStyle(artwork, '--camera-travel')).toBeGreaterThan(0.4)
+      expect(getStyle(neighbor, '--arrival')).toBe(0)
+      expect(page.get('[data-preview=neighbors]').element).toBe(neighbor)
+
+      heroTop = 0
+      window.dispatchEvent(new Event('scroll'))
+      await tick()
+      expect(getStyle(artwork, '--camera-travel')).toBe(0)
+      expect(scrollTo).not.toHaveBeenCalled()
+      expect(frames.size).toBe(0)
+    } finally {
+      scrollTo.mockRestore()
+    }
+  })
+
+  it('keeps deep links and every finished example readable with reduced motion', async () => {
+    const page = render()
+    visibility(page.get('[data-preview=connect]').element, 1)
     expect(frames.size).toBe(1)
-    view!.unmount()
-    view = undefined
+    prefersReducedMotion = true
+    changePreference()
+    await flushPromises()
+    expect(disconnect).toHaveBeenCalledOnce()
     expect(frames.size).toBe(0)
-  })
-  it('shows all features in reading order when motion is reduced and preserves older shared scene names', async () => {
-    reduced = true
-    const page = render()
+    expect(page.attributes('data-reduced')).toBe('true')
+    expect(page.findAll('.showcase-preview[data-held=true]')).toHaveLength(chapters.length)
+    expect(
+      page.findAll('article.showcase-chapter').map((article) => article.attributes('id'))
+    ).toEqual(chapters.slice(1).map(({ scene }) => 'film-' + scene))
+    expect(page.get('#desktop').text()).toContain('桌面连接看板')
     expect(page.findAll('.sp-bands li').map((band) => band.text().replace(/\s/g, ''))).toEqual([
       '2.4GHz',
       '5GHz',
     ])
-    expect(page.findAll('.film-transcript > article').map((el) => el.attributes('id'))).toEqual([
-      'film-connect',
-      'film-links',
-      'film-neighbors',
-      'film-lock',
-      'film-tests',
-      'film-speed',
-      'film-wifi',
-      'film-settings',
-      'film-desktop-connect',
-      'film-desktop-lock',
-      'film-desktop-test',
-    ])
-    expect(frames.size).toBe(0)
     expect(linkedScene('lock')).toBe('lock')
     expect(linkedScene('speed')).toBe('speed')
-    expect(linkedScene('settings')).toBe('settings')
     expect(linkedScene('bogus')).toBeUndefined()
   })
 })

@@ -15,7 +15,6 @@ const camera = computed(() => ({
   '--first': ease(span(props.progress, 0.05, 0.37)),
   '--second': ease(span(props.progress, 0.15, 0.58)),
   '--third': ease(span(props.progress, 0.26, 0.76)),
-  '--hero-swing': Math.sin(Math.PI * span(props.progress, 0.02, 0.64)),
 }))
 </script>
 

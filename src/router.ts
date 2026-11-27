@@ -63,9 +63,8 @@ export const router = createRouter({
     if (target) {
       const section = document.getElementById(target)
       if (section) {
-        const stage = section.closest('.film-anchor')?.parentElement?.querySelector('.film-stage')
-        // Seek to the sticky viewport's own edge, not the general section margin.
-        const top = stage ? parseFloat(getComputedStyle(stage).top) || 0 : 76
+        const header = document.querySelector('.topbar')?.getBoundingClientRect().height ?? 64
+        const top = header + 12
         return { el: section, top, behavior: 'instant' }
       }
     }

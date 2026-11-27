@@ -1,221 +1,357 @@
-/* The phone and detached cards share one light source. Only transforms/opacity move. */
+/* The device remains the product; the surrounding cards get space for the numbers. */
 .hero-assembly,
 .film-assembly {
-  --android-surface: #182637;
-  --android-tile: #213247;
-  --android-outline: #3b516a;
-  --android-text: #f2f7ff;
-  --android-muted: #b4c4d8;
-  --android-accent: #b1d2ff;
-  --android-on-accent: #142a45;
-  --android-strong: #90dfc7;
-  --android-radius: 17px;
-  --panel-edge: #9bbbe347;
-  --panel-shadow: 0 18px 36px -15px #030916a3, inset 0 1px #cfdef911;
   position: relative;
   width: 100%;
   height: 100%;
   min-width: 0;
   min-height: 0;
-  color: var(--android-text);
   container: assembly / size;
   pointer-events: none;
 }
-
-.hero-device {
-  position: absolute;
-  z-index: 0;
-  inset: 5% auto 5% 3%;
-  width: 51%;
-  transform: perspective(880px)
-    rotateY(calc(var(--hero-swing) * -17deg - 11deg * var(--camera-travel, 0)))
-    rotateX(calc(var(--hero-swing) * 6deg))
-    translateX(calc((1 - var(--assembly)) * 38% + var(--camera-travel, 0) * 13%))
-    translateY(calc((1 - var(--assembly)) * 5%)) scale(calc(0.91 + var(--assembly) * 0.09));
+.hero-assembly {
+  --camera: var(--camera-travel, 0);
+  --detail-ink: #233a59;
+  --detail-muted: #506783;
+  --detail-accent: #255d97;
+  --detail-line: #d6e1ee;
+  --detail-face: #f8fbff;
+  --detail-edge: #d1ddef;
+  --detail-shadow: 0 18px 35px -22px #26486a82, 0 4px 12px -8px #26486a4d;
 }
-.hero-assembly::before {
+:root[data-theme='dark'] .hero-assembly {
+  --detail-ink: #edf5ff;
+  --detail-muted: #b7c9df;
+  --detail-accent: #a6ceff;
+  --detail-line: #4b627c;
+  --detail-face: #23334a;
+  --detail-edge: #435b74;
+  --detail-shadow: 0 18px 35px -22px #02050cc2, 0 4px 12px -8px #02050c9e;
+}
+.hero-assembly::before,
+.hero-assembly::after {
   position: absolute;
-  inset: 12% 13% 12% 4%;
-  border: 1px solid #aacfff42;
-  border-radius: 50%;
-  opacity: calc(0.08 + 0.45 * var(--hero-swing));
-  transform: rotate(-27deg) scale(calc(0.92 + 0.09 * var(--hero-swing)));
+  pointer-events: none;
   content: '';
 }
+.hero-assembly::before {
+  inset: 11% 7% 13%;
+  z-index: -1;
+  background:
+    linear-gradient(90deg, var(--story-line) 1px, transparent 1px),
+    linear-gradient(var(--story-line) 1px, transparent 1px);
+  background-size: 29px 29px;
+  background-position: center;
+  mask-image: radial-gradient(ellipse at center, #000 25%, transparent 72%);
+  opacity: 0.62;
+  transform: translateY(calc(var(--camera) * 23px));
+}
+.hero-assembly::after {
+  top: 50%;
+  left: 50%;
+  z-index: -1;
+  width: 84%;
+  height: 42%;
+  border: 1px solid color-mix(in srgb, var(--story-accent) 26%, transparent);
+  border-radius: 50%;
+  box-shadow: 0 0 0 27px color-mix(in srgb, var(--story-accent) 4%, transparent);
+  transform: translate(-50%, -50%) rotate(-19deg) scale(calc(0.94 + 0.06 * var(--assembly)));
+}
+.hero-device {
+  position: absolute;
+  inset: 3% 24% 3%;
+  transform: perspective(1050px)
+    translate3d(0, calc(18px * (1 - var(--assembly)) + 43px * var(--camera)), 0)
+    rotateY(calc(-18deg * (1 - var(--assembly)) + 10deg * var(--camera)))
+    rotateZ(calc(-5deg * (1 - var(--assembly)) - 3deg * var(--camera)))
+    scale(calc(0.97 + 0.03 * var(--assembly)));
+}
 .hero-device .android-handset {
-  border-color: #9aaabd;
+  border-color: #8496ab;
   box-shadow:
-    0 25px 48px -19px #020711dd,
+    0 39px 57px -25px #132d5680,
+    0 12px 22px -10px #182f596d,
     inset 0 0 0 1px #e2edff27;
 }
 .hero-panels {
   position: absolute;
+  inset: 0;
   z-index: 1;
-  inset: 0 3% 0 46%;
-  display: grid;
-  align-content: center;
-  gap: clamp(8px, 2cqh, 16px);
-}
-.hero-panel,
-.film-assembly .android-card,
-.film-assembly .rs-lock-tabs,
-.film-assembly .rs-lock-result {
-  min-width: 0;
-  border: 1px solid var(--panel-edge);
-  border-radius: var(--android-radius);
-  background: linear-gradient(148deg, #26394f, #172435 65%);
-  box-shadow: var(--panel-shadow);
 }
 .hero-panel {
   --lift: var(--first);
-  --from-x: -48%;
-  --from-y: 20%;
-  --pitch: -9deg;
-  --depth: -28px;
-  --exit-at: 0.27;
-  --fold: clamp(0, (var(--camera-travel, 0) - var(--exit-at)) * 1.35, 1);
-  --displaced: max(1 - var(--lift), var(--fold) * 0.78);
-  padding: clamp(10px, 2.65cqw, 21px);
-  opacity: calc(var(--lift) * (1 - 0.53 * var(--fold)));
-  transform: perspective(800px)
+  --float-x: -32px;
+  --float-y: 13px;
+  --float-z: -38px;
+  --drift: -8px;
+  position: absolute;
+  top: var(--panel-y);
+  width: var(--panel-width);
+  margin: 0;
+  min-width: 0;
+  padding: clamp(10px, 2.25cqw, 17px);
+  border: 1px solid var(--detail-edge);
+  border-radius: clamp(11px, 2.8cqw, 18px);
+  background: var(--detail-face);
+  color: var(--detail-ink);
+  box-shadow:
+    var(--detail-shadow),
+    inset 0 1px color-mix(in srgb, #fff 30%, transparent);
+  opacity: calc((0.22 + 0.78 * var(--lift)) * (1 - 0.19 * var(--camera)));
+  transform: perspective(740px)
     translate3d(
-      calc(var(--from-x) * var(--displaced)),
-      calc(var(--from-y) * var(--displaced)),
-      calc(var(--depth) * var(--displaced))
+      calc(var(--float-x) * (1 - var(--lift))),
+      calc(var(--float-y) * (1 - var(--lift)) + var(--drift) * var(--camera)),
+      calc(var(--float-z) * (1 - var(--lift)))
     )
-    rotateY(calc(var(--pitch) * var(--displaced))) scale(calc(1 - var(--displaced) * 0.17));
-}
-.hero-network {
-  display: flex;
-  align-items: center;
-  gap: clamp(7px, 1.6cqw, 12px);
-  width: 90%;
-  margin-left: 5%;
-}
-.hero-panel-icon {
-  display: grid;
-  flex: none;
-  place-items: center;
-  width: clamp(28px, 6cqw, 40px);
-  aspect-ratio: 1;
-  border: 1px solid #c0d8ff25;
-  border-radius: 10px;
-  color: var(--android-accent);
-  background: #9bc8ff1d;
-}
-.hero-online {
-  width: 6px;
-  height: 6px;
-  margin-inline-start: auto;
-  flex: none;
-  border-radius: 50%;
-  background: var(--android-strong);
-  box-shadow: 0 0 0 3px #90dfc724;
+    rotateY(calc(-11deg * (1 - var(--lift))));
 }
 .hero-panel h3 {
   margin: 0;
-  color: var(--android-text);
-  font-size: clamp(12px, 2.6cqw, 17px);
-  line-height: 1.24;
-  font-weight: 640;
+  color: var(--detail-ink);
+  font-size: clamp(0.75rem, 2.35cqw, 1rem);
+  font-weight: 650;
+  line-height: 1.22;
+  white-space: nowrap;
   text-wrap: nowrap;
 }
 .hero-network small,
 .hero-panel header > span,
 .hero-reading-scale,
 .hero-metrics dt {
-  color: var(--android-muted);
-  font-size: clamp(10px, 2.05cqw, 13px);
+  color: var(--detail-muted);
+  font-size: clamp(0.625rem, 1.85cqw, 0.8125rem);
   line-height: 1.25;
+}
+.hero-network {
+  --panel-width: clamp(138px, 29%, 216px);
+  --panel-y: 16%;
+  --drift: 19px;
+  inset-inline-end: 2%;
+  display: flex;
+  align-items: center;
+  gap: clamp(5px, 1.25cqw, 10px);
+}
+.hero-panel-icon {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: clamp(23px, 5.2cqw, 35px);
+  aspect-ratio: 1;
+  border-radius: 8px;
+  color: var(--detail-accent);
+  background: color-mix(in srgb, var(--detail-accent) 13%, var(--detail-face));
+}
+.hero-panel-icon svg {
+  width: 57%;
+  height: 57%;
+}
+.hero-online {
+  flex: none;
+  width: 6px;
+  height: 6px;
+  margin-inline-start: auto;
+  border-radius: 50%;
+  background: #3a9d84;
+  box-shadow: 0 0 0 3px #47a48d1f;
 }
 .hero-network small {
   display: block;
-  margin-bottom: 2px;
+  margin-bottom: 3px;
 }
 .hero-network h3 span {
-  white-space: nowrap;
-  color: var(--android-accent);
+  color: var(--detail-accent);
 }
 .hero-rf {
+  --panel-width: clamp(156px, 34.5%, 232px);
+  --panel-y: 35%;
   --lift: var(--second);
-  --from-x: -36%;
-  --from-y: -2%;
-  --depth: -52px;
-  --exit-at: 0.12;
-  border-color: #a7caff6b;
-  background: linear-gradient(151deg, #2a405a, #172435 74%);
+  --float-x: 56px;
+  --float-y: -12px;
+  --float-z: -70px;
+  --drift: -26px;
+  inset-inline-start: 2%;
+  background: linear-gradient(
+    145deg,
+    var(--detail-face),
+    color-mix(in srgb, var(--detail-face) 90%, var(--detail-accent))
+  );
 }
 .hero-panel header,
 .hero-reading-scale {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  gap: 4px;
+  gap: 3px;
 }
 .hero-panel header > span {
+  flex-shrink: 0;
   white-space: nowrap;
 }
 .hero-reading {
   display: flex;
   align-items: baseline;
-  gap: 6px;
-  margin-block: clamp(4px, 1.7cqh, 12px) 2px;
-  color: #e9f3ff;
-  font-size: clamp(34px, 9.6cqw, 68px);
-  line-height: 0.98;
-  letter-spacing: -0.065em;
+  gap: 5px;
+  margin-block: clamp(5px, 1.35cqh, 10px) 3px;
+  color: var(--detail-ink);
+  font-size: clamp(2rem, 8.6cqw, 3.75rem);
+  line-height: 0.95;
+  letter-spacing: -0.064em;
 }
 .hero-reading b {
-  font-weight: 620;
+  font-weight: 650;
 }
 .hero-reading > span {
-  color: var(--android-accent);
-  font-size: clamp(11px, 2.6cqw, 17px);
+  color: var(--detail-accent);
+  font-size: clamp(0.6875rem, 2.3cqw, 1rem);
   letter-spacing: normal;
 }
 .hero-reading-scale {
   position: relative;
   padding-bottom: 7px;
-  border-bottom: 2px solid #b6d2ff30;
+  border-bottom: 2px solid var(--detail-line);
 }
 .hero-reading-scale i {
   position: absolute;
   inset: auto 0 -2px;
   height: 2px;
   border-radius: 2px;
-  background: linear-gradient(90deg, #82b5fb, #9cdcc9);
+  background: linear-gradient(90deg, #4d90de, #4dbca8);
   transform: scaleX(calc(var(--fill) * (0.25 + 0.75 * var(--second))));
   transform-origin: left;
 }
 .hero-metrics {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 7px 10px;
-  margin: clamp(7px, 1.85cqh, 14px) 0 0;
+  gap: 8px 6px;
+  margin: clamp(7px, 1.55cqh, 12px) 0 0;
 }
 .hero-metrics dd {
   margin: 1px 0 0;
-  color: var(--android-text);
-  font-size: clamp(13px, 3.3cqw, 22px);
-  font-weight: 640;
+  color: var(--detail-ink);
+  font-size: clamp(0.75rem, 2.8cqw, 1.25rem);
+  font-weight: 650;
   line-height: 1.12;
   white-space: nowrap;
 }
 .hero-metrics dd span {
-  color: var(--android-muted);
-  font-size: 0.69em;
+  color: var(--detail-muted);
+  font-size: 0.67em;
 }
 .hero-cell {
+  --panel-width: clamp(133px, 28.5%, 218px);
+  --panel-y: 60%;
   --lift: var(--third);
-  --from-x: -48%;
-  --from-y: -20%;
-  --depth: -76px;
-  --exit-at: 0;
-  width: 94%;
-  margin-left: 3%;
+  --float-x: -62px;
+  --float-y: 7px;
+  --float-z: -68px;
+  --drift: -42px;
+  inset-inline-end: 1%;
+}
+@container assembly (max-width: 515px) {
+  .hero-device {
+    inset-inline: 19%;
+  }
+  .hero-network {
+    --panel-width: 150px;
+    --panel-y: 13%;
+    inset-inline-end: 0;
+  }
+  .hero-rf {
+    --panel-width: clamp(140px, 39%, 174px);
+    --panel-y: 38%;
+    inset-inline-start: 0;
+  }
+  .hero-cell {
+    --panel-width: clamp(142px, 38%, 164px);
+    --panel-y: 62%;
+    inset-inline-end: 0;
+  }
+  .hero-reading {
+    font-size: clamp(2rem, 11cqw, 2.9rem);
+  }
+  .hero-cell .hero-metrics dt {
+    white-space: nowrap;
+  }
+}
+@container assembly (max-width: 315px) {
+  .hero-network {
+    --panel-width: 134px;
+    --panel-y: 10%;
+    gap: 5px;
+    padding-inline: 8px;
+  }
+  .hero-rf {
+    --panel-width: 133px;
+    --panel-y: 36%;
+  }
+  .hero-cell {
+    --panel-width: 134px;
+    --panel-y: 61%;
+  }
+  .hero-cell header > span {
+    font-size: 9px;
+  }
+  .hero-online {
+    display: none;
+  }
+}
+@container assembly (max-height: 335px) and (min-width: 360px) {
+  .hero-network {
+    --panel-y: 8%;
+  }
+  .hero-rf {
+    --panel-y: 33%;
+  }
+  .hero-cell {
+    --panel-y: 54%;
+  }
 }
 
 /* Panel layout for the same data shown by the application. */
+.film-assembly {
+  --android-surface: var(--story-card);
+  --android-tile: var(--story-inset);
+  --android-outline: var(--story-line);
+  --android-text: var(--story-ink);
+  --android-muted: var(--story-muted);
+  --android-accent: var(--story-accent);
+  --android-on-accent: var(--button-text);
+  --android-strong: #176451;
+  --android-radius: clamp(10px, 2.5cqw, 17px);
+  --panel-shadow: var(--story-shadow);
+  --quality-excellent: #236c57;
+  --quality-good: #12677a;
+  --quality-fair: #85540e;
+  --quality-poor: #9d4a28;
+  color: var(--android-text);
+}
+:root[data-theme='dark'] .film-assembly {
+  --android-strong: #9adbc7;
+  --quality-excellent: #88cfac;
+  --quality-good: #86c9c9;
+  --quality-fair: #e6bc76;
+  --quality-poor: #f2aa74;
+}
+.film-assembly .radio-scene [data-quality='excellent'] {
+  --reading-color: var(--quality-excellent);
+}
+.film-assembly .radio-scene [data-quality='good'] {
+  --reading-color: var(--quality-good);
+}
+.film-assembly .radio-scene [data-quality='fair'] {
+  --reading-color: var(--quality-fair);
+}
+.film-assembly .radio-scene [data-quality='poor'],
+.film-assembly .radio-scene [data-quality='bad'] {
+  --reading-color: var(--quality-poor);
+}
+.film-assembly :is(.android-card, .rs-lock-tabs, .rs-lock-result) {
+  border: 1px solid var(--story-line);
+  border-radius: var(--android-radius);
+  background: var(--story-card);
+  box-shadow: var(--panel-shadow);
+}
 .film-assembly .radio-scene {
   --spacing: clamp(6px, 1.7cqh, 13px);
   position: absolute;
@@ -312,8 +448,8 @@
   display: none;
 }
 .film-assembly .rs-device-stats > :first-child {
-  border-color: #a0c2f45b;
-  background: #283b53;
+  border-color: color-mix(in srgb, var(--story-accent) 33%, var(--story-line));
+  background: color-mix(in srgb, var(--story-accent) 12%, var(--story-card));
 }
 .film-assembly .rs-device-stats dt {
   font-size: clamp(9px, 2cqw, 12px);
@@ -337,6 +473,20 @@
 }
 .film-assembly .rs-lock-tabs {
   font-size: clamp(10px, 2.55cqw, 15px);
+}
+.film-assembly .rs-roles span {
+  background: var(--story-inset);
+  color: var(--story-ink);
+}
+.film-assembly .rs-roles [data-current='true'],
+.film-assembly .rs-band-grid [data-selected='true'] {
+  border-color: var(--story-accent);
+  color: var(--story-accent);
+  background: color-mix(in srgb, var(--story-accent) 14%, var(--story-card));
+}
+.film-assembly .rs-neighbor-list [data-current='true'],
+.film-assembly .rs-ca-table [data-current='true'] {
+  background: color-mix(in srgb, var(--story-accent) 8%, var(--story-card));
 }
 .film-assembly .rs-band-grid {
   grid-auto-rows: clamp(22px, 5.5cqh, 38px);
@@ -401,9 +551,9 @@
   margin: 0;
   gap: 5px;
   padding: clamp(6px, 1.6cqw, 12px);
-  border: 1px solid #a7c8ee26;
+  border: 1px solid var(--story-line);
   border-radius: 11px;
-  background: #101a29a3;
+  background: var(--story-panel);
 }
 .film-assembly .rs-test-menu .rs-list {
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -412,22 +562,30 @@
 .film-assembly .rs-test-menu .rs-list li {
   gap: clamp(4px, 1.5cqw, 10px);
   padding-inline: clamp(5px, 2cqw, 13px);
-  border: 1px solid #a7c8ee38;
+  border: 1px solid var(--story-line);
   border-radius: 9px;
-  background-color: #142131;
+  background-color: var(--story-panel);
 }
 .film-assembly .rs-test-menu .rs-list li[data-current='true'] {
-  border-color: #a1c7f572;
-  background-color: #293f58;
+  border-color: color-mix(in srgb, var(--story-accent) 42%, var(--story-line));
+  background-color: var(--story-inset);
 }
 .film-assembly .rs-test-menu .rs-list li:last-child {
   grid-column: 1 / -1;
 }
 .film-assembly .spectrum-scene {
-  --sp-surface: #172435;
-  --sp-line: var(--panel-edge);
+  --sp-surface: var(--story-card);
+  --sp-line: var(--story-line);
+  --sp-ink: var(--story-ink);
+  --sp-muted: var(--story-muted);
+  --sp-blue: #245da7;
+  --sp-teal: #157963;
   width: 100%;
   max-height: none;
+}
+:root[data-theme='dark'] .film-assembly .spectrum-scene {
+  --sp-blue: #a2c8ff;
+  --sp-teal: #85e0c9;
 }
 .film-assembly .sp-throughput,
 .film-assembly .sp-wifi {
@@ -437,6 +595,7 @@
   gap: clamp(6px, 2cqh, 15px);
 }
 .film-assembly .sp-throughput {
+  height: min(100%, 548px);
   grid-template: 'status' auto 'down' minmax(0, 1fr) 'up' minmax(0, 1fr) 'session' auto / minmax(
       0,
       1fr
@@ -461,15 +620,15 @@
   margin-inline: 0;
 }
 .film-assembly .sp-status span {
-  color: #aee8d8;
-  background: #214139;
+  color: var(--android-strong);
+  background: color-mix(in srgb, var(--android-strong) 12%, var(--story-card));
 }
 .film-assembly .spectrum-scene .pm-speed-card,
 .film-assembly .sp-plate {
   margin-inline: 0;
   padding: clamp(7px, 2.1cqh, 16px) clamp(9px, 3cqw, 20px);
   border-radius: var(--android-radius);
-  background: linear-gradient(148deg, #26394f, #172435 65%);
+  background: var(--story-card);
   box-shadow: var(--panel-shadow);
 }
 .film-assembly .pm-speed-card dl {
@@ -477,8 +636,8 @@
 }
 .film-assembly .sp-wifi {
   grid-template-rows: auto minmax(0, 1.4fr) minmax(0, 0.8fr);
-  max-width: 562px;
-  height: min(88%, 480px);
+  max-width: 602px;
+  height: min(96%, 480px);
 }
 .film-assembly .sp-view-mode {
   align-self: center;
@@ -486,10 +645,24 @@
 .film-assembly .sp-view-mode b {
   color: var(--android-accent);
 }
+.film-assembly .sp-bands {
+  color: var(--story-muted);
+  background: var(--story-panel);
+}
+.film-assembly .sp-bands [aria-current='step'] {
+  color: var(--story-accent);
+  background: color-mix(in srgb, var(--story-accent) 14%, var(--story-card));
+}
+.film-assembly .sp-grid line {
+  stroke: #607d94;
+}
+.film-assembly .sp-hotspots li i {
+  box-shadow: 0 0 0 1px color-mix(in srgb, currentColor 20%, transparent);
+}
 
 @container assembly (min-width: 490px) {
   .film-assembly .sp-throughput {
-    height: min(84%, 420px);
+    height: min(100%, 432px);
     grid-template:
       'status status' auto 'down up' minmax(0, 1fr) 'session session' auto /
       minmax(0, 1fr) minmax(0, 1fr);
@@ -501,20 +674,25 @@
   }
 }
 
+@container assembly (width < 490px) {
+  .film-assembly .spectrum-scene .pm-speed-card {
+    grid-template:
+      'label rate' auto 'chart chart' minmax(0, 1fr) 'scale scale' auto 'stats stats' auto /
+      minmax(0, 1fr) auto;
+  }
+}
+
+@container assembly (max-width: 301px) {
+  .film-assembly .rs-lock {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .film-assembly .rs-band-grid {
+    grid-auto-rows: 25px;
+    font-size: 12px;
+  }
+}
+
 @container assembly (max-width: 325px) {
-  .hero-network {
-    gap: 5px;
-    padding-inline: 8px;
-  }
-  .hero-network h3 {
-    font-size: 11px;
-  }
-  .hero-network .hero-panel-icon {
-    width: 23px;
-  }
-  .hero-network .hero-online {
-    display: none;
-  }
   .film-assembly .rs-power h3 {
     font-size: 11px;
   }
@@ -524,24 +702,6 @@
 }
 
 @container assembly (max-width: 485px) {
-  .hero-device {
-    inset: 7% auto 7% 1%;
-    width: 51%;
-  }
-  .hero-panels {
-    inset: 0 2% 0 44%;
-  }
-  .hero-panel {
-    --android-radius: 12px;
-  }
-  .hero-network {
-    width: 96%;
-    margin-left: 4%;
-  }
-  .hero-cell {
-    width: 100%;
-    margin-left: 0;
-  }
   .film-assembly .radio-scene[data-radio-scene='neighbors'] {
     grid-template: 'cells' auto 'device' auto / minmax(0, 1fr);
   }
@@ -565,18 +725,6 @@
 }
 
 @container assembly (max-height: 370px) {
-  .hero-panels {
-    gap: 6px;
-  }
-  .hero-panel {
-    padding-block: 8px;
-  }
-  .hero-reading {
-    font-size: clamp(28px, 8cqw, 44px);
-  }
-  .hero-metrics {
-    margin-top: 6px;
-  }
   .film-assembly .sp-throughput,
   .film-assembly .sp-wifi {
     height: 100%;
@@ -587,15 +735,6 @@
 }
 
 @container assembly (max-height: 300px) {
-  .hero-panel-icon {
-    width: 25px;
-  }
-  .hero-reading-scale {
-    padding-bottom: 4px;
-  }
-  .hero-metrics {
-    gap: 4px 7px;
-  }
   .film-assembly .android-card {
     padding-block: 7px;
   }
@@ -629,49 +768,9 @@
   }
 }
 
-@container assembly (min-width: 335px) and (max-height: 290px) {
-  .hero-device {
-    inset: 2% auto 2% 1%;
-    width: 36%;
-  }
-  .hero-panels {
-    inset-inline-start: 34%;
-    grid-template: 'network network' auto 'radio cell' auto / minmax(0, 1.07fr) minmax(0, 1fr);
-  }
-  .hero-network {
-    grid-area: network;
-    width: 100%;
-    margin: 0;
-  }
-  .hero-rf {
-    grid-area: radio;
-  }
-  .hero-cell {
-    grid-area: cell;
-    width: 100%;
-    margin: 0;
-  }
-  .hero-cell .hero-metrics dt {
-    font-size: 9px;
-  }
-  .hero-panel header {
-    flex-wrap: wrap;
-  }
-  .film-assembly .sp-throughput {
-    grid-template:
-      'status status' auto 'down up' minmax(0, 1fr) 'session session' auto /
-      minmax(0, 1fr) minmax(0, 1fr);
-  }
-  .film-assembly .spectrum-scene .pm-speed-card {
-    grid-template:
-      'label rate' auto 'chart chart' minmax(0, 1fr) 'scale scale' auto 'stats stats' auto /
-      minmax(0, 1fr) auto;
-  }
-}
-
 /* The same playhead eases each card into place before the data example completes. */
 @media (prefers-reduced-motion: no-preference) {
-  .film-art
+  .showcase-art
     .film-assembly
     :is(
       .rs-ca,
@@ -682,12 +781,12 @@
       .pm-speed-card.down,
       .sp-spectrum
     ),
-  .film-art .film-desktop-assembly :is(.reel-signal, .reel-band-panel, .reel-ping-panel) {
+  .showcase-art .film-desktop-assembly :is(.reel-signal, .reel-band-panel, .reel-ping-panel) {
     --land: var(--first);
-    --slide: -22px;
-    --drift: -16px;
+    --slide: -12px;
+    --drift: 5px;
   }
-  .film-art
+  .showcase-art
     .film-assembly
     :is(
       .rs-power,
@@ -698,21 +797,21 @@
       .pm-speed-card.up,
       .sp-hotspots
     ),
-  .film-art .film-desktop-assembly :is(.reel-reading, .reel-lock-record) {
+  .showcase-art .film-desktop-assembly :is(.reel-reading, .reel-lock-record) {
     --land: var(--second);
-    --slide: 25px;
-    --drift: 20px;
+    --slide: 12px;
+    --drift: 11px;
   }
-  .film-art .film-assembly :is(.rs-link, .rs-lock-result, .rs-style-card, .sp-session),
-  .film-art .film-desktop-assembly .reel-strip {
+  .showcase-art .film-assembly :is(.rs-link, .rs-lock-result, .rs-style-card, .sp-session),
+  .showcase-art .film-desktop-assembly .reel-strip {
     --land: var(--third);
-    --slide: 10px;
-    --drift: 32px;
+    --slide: 6px;
+    --drift: 15px;
   }
-  .film-art
+  .showcase-art
     .film-assembly
     :is(.android-card, .rs-lock-tabs, .rs-lock-result, .pm-speed-card, .sp-plate, .sp-session),
-  .film-art
+  .showcase-art
     .film-desktop-assembly
     :is(
       .reel-signal,
@@ -722,11 +821,11 @@
       .reel-ping-panel,
       .reel-strip
     ) {
-    opacity: calc(0.32 + 0.68 * var(--land, 1));
+    opacity: calc(0.64 + 0.36 * var(--land, 1));
     transform: translate(
         calc(var(--slide, 0px) * (1 - var(--land, 1))),
         calc(var(--drift, 18px) * (1 - var(--land, 1)))
       )
-      scale(calc(0.97 + 0.03 * var(--land, 1)));
+      scale(calc(0.985 + 0.015 * var(--land, 1)));
   }
 }
