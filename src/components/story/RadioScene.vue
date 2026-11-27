@@ -3,29 +3,16 @@ import { computed } from 'vue'
 import { deviceStats, radioNeighbors } from '@/data/androidPreview'
 import SiteIcon from '../SiteIcon.vue'
 import AndroidGlyph from './AndroidGlyph.vue'
-import { cellFacts, finalPower, finalRadio } from './data'
+import { cellFacts, finalPower, finalRadio, radioCarriers as carriers } from './data'
 import { level, score, span } from './quality'
 import '@/styles/radio-scene.css'
 
 const props = defineProps<{
   scene: 'connect' | 'links' | 'neighbors' | 'lock' | 'tests' | 'settings'
   progress: number
+  panels?: boolean
 }>()
 
-const carriers = [
-  {
-    label: 'NR PCC',
-    type: 'P',
-    values: cellFacts.map(([, value]) => value),
-    rf: finalRadio.map((metric) => Number(metric.value)),
-  },
-  {
-    label: 'NR SCC1',
-    type: 'S',
-    values: ['N78', '636666', '221', '', '', '80 MHz'],
-    rf: [-87, -12, 21, -66, 14],
-  },
-] as const
 const aggregationFields = ['Type', 'Band', 'ARFCN', 'PCI', 'BW', 'RSRP', 'RSRQ', 'SINR']
 const carrier = computed(() => carriers[props.progress < 0.55 ? 0 : 1])
 const currentCell = computed(() =>
@@ -61,7 +48,7 @@ const selectedBand = computed(() =>
 )
 const applying = computed(() => props.progress >= 0.7 && props.progress < 0.87)
 const applied = computed(() => props.progress >= 0.87)
-const settingsDetail = computed(() => props.progress >= 0.24)
+const settingsDetail = computed(() => props.panels || props.progress >= 0.24)
 const styleLight = computed(() => props.progress >= 0.56)
 const readingFill = computed(() => 0.36 + 0.64 * span(props.progress, 0.06, 0.38))
 const readingFocus = computed(
@@ -190,7 +177,11 @@ const readingFocus = computed(
       <section class="android-card rs-device">
         <header class="android-card-heading"><h3>设备信息</h3></header>
         <dl class="rs-metrics rs-device-stats">
-          <div v-for="[label, value] in deviceStats" :key="label">
+          <div
+            v-for="([label, value], index) in deviceStats"
+            :key="label"
+            :data-compact="[0, 1, 2, 9, 10, 11].includes(index) || undefined"
+          >
             <dt>{{ label }}</dt>
             <dd>{{ value }}</dd>
           </div>
@@ -198,7 +189,7 @@ const readingFocus = computed(
       </section>
       <section class="android-card rs-neighbors" :data-pci="radioNeighbors[currentNeighbor]!.pci">
         <header class="android-card-heading"><h3>邻区显示</h3></header>
-        <p>点击条目可确认锁小区</p>
+        <p>{{ panels ? 'LTE B8 · ARFCN 3740' : '点击条目可确认锁小区' }}</p>
         <ul class="rs-neighbor-list">
           <li
             v-for="(cell, index) in radioNeighbors"
@@ -247,11 +238,14 @@ const readingFocus = computed(
           </ul>
         </section>
       </section>
-      <div class="rs-lock-actions">
+      <div v-if="!panels" class="rs-lock-actions">
         <span :data-applying="applying">{{ applying ? '处理中' : '应用' }}</span
         ><span>清空</span>
       </div>
-      <p v-if="applied" class="rs-lock-result"><SiteIcon name="check" :size="14" />锁频段 成功</p>
+      <p v-if="panels || applied" class="rs-lock-result" :data-applied="applied">
+        <SiteIcon :name="applied ? 'check' : 'lock'" :size="14" />
+        {{ applied ? '锁频段 成功' : applying ? '处理中' : '频段配置' }}
+      </p>
     </template>
 
     <template v-else-if="scene === 'tests'">

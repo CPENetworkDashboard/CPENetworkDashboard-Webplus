@@ -54,3 +54,18 @@ export function powerAt(r: number): Metric[] {
 }
 export const finalRadio = radioAt(1)
 export const finalPower = powerAt(1)
+
+export const radioCarriers = [
+  {
+    label: 'NR PCC',
+    type: 'P',
+    values: cellFacts.map(([, value]) => value),
+    rf: finalRadio.map((metric) => Number(metric.value)),
+  },
+  {
+    label: 'NR SCC1',
+    type: 'S',
+    values: ['N78', '636666', '221', '', '', '80 MHz'],
+    rf: [-87, -12, 21, -66, 14],
+  },
+] as const

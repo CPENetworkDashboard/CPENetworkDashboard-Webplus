@@ -67,15 +67,15 @@ async function advance(count = 1) {
   await flushPromises()
 }
 
-async function seek(scene: SceneId) {
+async function seek(scene: SceneId, portion = 0.1) {
   const index = chapters.findIndex((chapter) => chapter.scene === scene)
-  top = -((index + 0.1) * 3000) / chapters.length
+  top = -((index + portion) * 3000) / chapters.length
   window.dispatchEvent(new Event('scroll'))
   await advance()
 }
 
 describe('product presentation', () => {
-  it('opens on the Android connection screen, completes its take without input and holds the same frame until the visitor scrolls', async () => {
+  it('opens on Android, assembles its panels automatically and holds the completed view', async () => {
     const page = render()
     await advance()
     expect(page.attributes('data-shot')).toBe('connect')
@@ -84,10 +84,11 @@ describe('product presentation', () => {
     expect(frames.size).toBe(0)
     await advance(140)
     expect(page.attributes('data-shot')).toBe('connect')
-    const handset = page.get('.android-handset').element
-    const statusBar = page.get('.android-status-line').element
+    expect(page.findAll('.hero-panel')).toHaveLength(3)
+    expect(page.get('.hero-rf').text()).toContain('-87')
     expect(page.get('.android-dock').text()).toBe('连接锁频测试设置')
     expect(page.get('.rs-cell').attributes('data-carrier')).toBe('NR SCC1')
+    const assembled = page.get('.hero-assembly').html()
     await seek('neighbors')
     expect(page.get('.rs-device-stats').findAll('dt')).toHaveLength(13)
     expect(page.get('.rs-neighbor-list').text()).toContain('265/1')
@@ -99,14 +100,31 @@ describe('product presentation', () => {
         .map((tab) => tab.text())
     ).toEqual(['网络首选', '锁频段', '锁频点', '锁小区'])
     await seek('speed')
-    expect(page.get('.android-handset').element).toBe(handset)
-    expect(page.get('.android-status-line').element).toBe(statusBar)
-    expect(page.get('.android-detail-bar').text()).toBe('测速')
+    expect(page.find('.android-handset').exists()).toBe(false)
+    expect(page.findAll('.film-assembly .pm-speed-card')).toHaveLength(2)
+    await advance(92)
+    expect(page.get('.pm-speed-card.down .pm-speed-headline strong').text()).toBe('508')
+    expect(page.get('.pm-speed-card.up .pm-speed-headline strong').text()).toBe('84.2')
     await seek('desktop-lock')
     expect(page.attributes('data-shot')).toBe('desktop-lock')
     await seek('connect')
-    expect(page.get('.rs-cell').attributes('data-carrier')).toBe('NR PCC')
+    expect(page.get('.hero-assembly').html()).toBe(assembled)
     expect(page.find('button, input, select, [tabindex], [role="tab"]').exists()).toBe(false)
+  })
+  it('moves the completed shot with scroll and keeps the next shot in the same stage', async () => {
+    const page = render()
+    await advance(92)
+    const stage = page.get('.film-stage').element
+    const camera = () =>
+      (page.get('.film-art').element as HTMLElement).style.getPropertyValue('--camera-travel')
+    expect(Number(camera())).toBe(0)
+    await seek('connect', 0.92)
+    expect(page.attributes('data-settled')).toBe('true')
+    expect(Number(camera())).toBeGreaterThan(0)
+    await seek('links', 0.04)
+    expect(page.get('.film-stage').element).toBe(stage)
+    expect(page.get('.film-art').attributes('data-scene')).toBe('links')
+    expect(Number(camera())).toBe(0)
   })
   it('suspends animation outside the viewport and removes the pending frame on unmount', async () => {
     render()

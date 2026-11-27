@@ -1,10 +1,15 @@
 /* The scroll track and studio use a constant viewport. Only the scene inside it changes. */
+@property --studio-glow {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #263d5a;
+}
 .scroll-film {
   --film-top: var(--site-header-height);
   --stage-height: calc(100vh - var(--film-top));
   --stage-height: calc(100svh - var(--film-top));
-  --shot-stride: clamp(380px, 62svh, 660px);
-  --studio-glow: #2a425e;
+  --shot-stride: clamp(330px, 53svh, 570px);
+  --studio-glow: #263d5a;
   position: relative;
   height: calc(var(--stage-height) + var(--film-length) * var(--shot-stride));
   background: var(--soft);
@@ -23,19 +28,19 @@
 }
 .scroll-film[data-shot='speed'],
 .scroll-film[data-shot='settings'] {
-  --studio-glow: #344969;
+  --studio-glow: #314460;
 }
-.scroll-film[data-shot='wifi'] {
-  --studio-glow: #294754;
+.scroll-film:is([data-shot='wifi'], [data-shot='neighbors']) {
+  --studio-glow: #274554;
 }
 .film-sheet {
   --film-inset: clamp(16px, 3.2svh, 38px);
   display: grid;
   height: 100%;
-  grid-template-columns: minmax(0, 0.86fr) minmax(0, 1.14fr);
+  grid-template-columns: minmax(0, 0.73fr) minmax(0, 1.27fr);
   grid-template-rows: minmax(0, 1fr) auto;
   align-items: center;
-  gap: 0 clamp(26px, 5vw, 80px);
+  gap: 0 clamp(22px, 4vw, 64px);
   padding-block: var(--film-inset) clamp(12px, 2.8svh, 24px);
 }
 .film-home .film-sheet {
@@ -134,33 +139,33 @@
   max-height: 704px;
   min-height: 0;
   overflow: clip;
-  border: 1px solid #31445b;
-  border-radius: 22px;
-  background: #142131;
+  border: 1px solid #30455e;
+  border-radius: 24px;
+  background: #111d2c;
   color: #e5edf7;
-  box-shadow: 0 14px 38px #142b431a;
+  box-shadow: 0 22px 50px -28px #13294385;
 }
 .film-visual {
   position: relative;
   isolation: isolate;
   min-height: 0;
   display: grid;
-  padding: 16px clamp(12px, 3vw, 36px) 14px;
-  background: radial-gradient(ellipse at 50% 42%, var(--studio-glow), #142131 84%);
+  padding: clamp(10px, 2.2svh, 22px) clamp(14px, 3vw, 40px);
+  background: radial-gradient(ellipse at 44% 35%, var(--studio-glow), #111d2c 77%);
 }
 .film-visual::before {
   position: absolute;
   inset: 0;
   z-index: -1;
   background-image:
-    linear-gradient(#c1d9ff12 1px, transparent 1px),
-    linear-gradient(90deg, #c1d9ff12 1px, transparent 1px);
+    linear-gradient(#c1d9ff0b 1px, transparent 1px),
+    linear-gradient(90deg, #c1d9ff0b 1px, transparent 1px);
   background-position: center;
-  background-size: 32px 32px;
-  mask-image: linear-gradient(to bottom, transparent, #000 30% 70%, transparent);
+  background-size: 38px 38px;
+  mask-image: radial-gradient(ellipse at 50% 48%, #000 24%, transparent 85%);
   content: '';
 }
-.film-art,
+.film-frame,
 .film-still {
   display: grid;
   place-items: stretch;
@@ -171,6 +176,13 @@
   min-width: 0;
   container-type: size;
 }
+.film-art {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  translate: 0 calc(-7px * var(--camera-travel, 0));
+  scale: calc(1 - 0.022 * var(--camera-travel, 0));
+}
 .film-figure figcaption {
   display: flex;
   align-items: center;
@@ -179,7 +191,7 @@
   min-height: 40px;
   padding: 6px 16px;
   border-top: 1px solid #3b506966;
-  background: #152332;
+  background: #111d2c;
   font-size: 0.8125rem;
   line-height: 1.32;
 }
@@ -259,19 +271,30 @@
   height: 1px;
 }
 @media (prefers-reduced-motion: no-preference) {
+  .scroll-film {
+    transition: --studio-glow 400ms ease;
+  }
   .film-copy {
     transition: opacity 150ms ease;
   }
-  .film-art {
-    animation: film-arrive 200ms ease-out both;
+  .film-cut-enter-active {
+    z-index: 1;
+    transition:
+      opacity 320ms ease,
+      transform 440ms cubic-bezier(0.2, 0.75, 0.25, 1);
   }
-  @keyframes film-arrive {
-    from {
-      opacity: 0.72;
-    }
-    to {
-      opacity: 1;
-    }
+  .film-cut-leave-active {
+    transition:
+      opacity 230ms ease,
+      transform 300ms ease;
+  }
+  .film-cut-enter-from {
+    transform: translateY(14px) scale(0.978);
+    opacity: 0;
+  }
+  .film-cut-leave-to {
+    transform: translateY(-18px) scale(0.97);
+    opacity: 0;
   }
 }
 
@@ -323,7 +346,7 @@
   padding: 12px;
 }
 .film-still-android {
-  height: clamp(390px, 48vw, 620px);
+  height: clamp(338px, 39vw, 520px);
 }
 .film-transcript figcaption {
   padding: 9px 14px;
@@ -359,7 +382,7 @@
 }
 @media (max-width: 760px) {
   .scroll-film {
-    --shot-stride: clamp(330px, 55svh, 490px);
+    --shot-stride: clamp(285px, 47svh, 420px);
   }
   .film-sheet {
     --film-inset: 12px;
@@ -395,7 +418,7 @@
     border-radius: 15px;
   }
   .film-visual {
-    padding: 6px 7px;
+    padding: 8px 9px;
   }
   .film-figure figcaption {
     min-height: 31px;
@@ -427,7 +450,7 @@
     grid-template-columns: minmax(0, 1fr);
   }
   .film-still-android {
-    height: clamp(405px, 144vw, 565px);
+    height: clamp(392px, 115vw, 500px);
   }
   .product-guide-intro {
     padding-bottom: 4px;
@@ -459,7 +482,7 @@
   }
   .film-sheet {
     --film-inset: 7px;
-    grid-template-columns: minmax(0, 0.78fr) minmax(0, 1.22fr);
+    grid-template-columns: minmax(0, 0.7fr) minmax(0, 1.3fr);
     grid-template-rows: minmax(0, 1fr) auto;
     gap: 0 16px;
     padding-bottom: 6px;

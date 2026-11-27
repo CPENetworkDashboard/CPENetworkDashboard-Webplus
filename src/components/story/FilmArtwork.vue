@@ -5,36 +5,38 @@ import AndroidHandset from './AndroidHandset.vue'
 import ProductExplorer from '../ProductExplorer.vue'
 import RadioScene from './RadioScene.vue'
 import SpectrumScene from './SpectrumScene.vue'
+import HeroPanels from './HeroPanels.vue'
+import { ease, span } from './quality'
+import '@/styles/film-assembly.css'
 
 const props = defineProps<{ scene: SceneId; progress: number }>()
-const settingsDetail = computed(() => props.scene === 'settings' && props.progress >= 0.24)
-const detailTitle = computed(() => {
-  if (props.scene === 'speed') return '测速'
-  if (props.scene === 'wifi') return 'Wi-Fi 信道'
-  if (settingsDetail.value) return '界面风格'
-  return undefined
-})
-const section = computed(() => {
-  if (props.scene === 'lock' || props.scene === 'settings') return props.scene
-  if (props.scene === 'tests' || props.scene === 'speed' || props.scene === 'wifi') return 'test'
-  return 'connect'
-})
+const camera = computed(() => ({
+  '--assembly': ease(span(props.progress, 0.02, 0.82)),
+  '--first': ease(span(props.progress, 0.05, 0.37)),
+  '--second': ease(span(props.progress, 0.15, 0.58)),
+  '--third': ease(span(props.progress, 0.26, 0.76)),
+  '--hero-swing': Math.sin(Math.PI * span(props.progress, 0.02, 0.64)),
+}))
 </script>
 
 <template>
+  <div v-if="scene === 'connect'" class="hero-assembly" :style="camera">
+    <div class="hero-device">
+      <AndroidHandset section="connect" shot="connect">
+        <RadioScene scene="connect" :progress />
+      </AndroidHandset>
+    </div>
+    <HeroPanels :progress />
+  </div>
   <ProductExplorer
-    v-if="scene === 'desktop-connect' || scene === 'desktop-lock' || scene === 'desktop-test'"
+    v-else-if="scene === 'desktop-connect' || scene === 'desktop-lock' || scene === 'desktop-test'"
+    class="film-desktop-assembly"
+    :style="camera"
     :scene
     :progress
   />
-  <AndroidHandset
-    v-else
-    :section
-    :shot="scene"
-    :title="detailTitle"
-    :light="scene === 'speed' || (scene === 'settings' && progress >= 0.56)"
-  >
+  <div v-else class="film-assembly" :style="camera" :data-layout="scene">
     <SpectrumScene v-if="scene === 'speed' || scene === 'wifi'" :scene :progress />
-    <RadioScene v-else :scene :progress />
-  </AndroidHandset>
+    <RadioScene v-else :scene :progress panels />
+  </div>
 </template>

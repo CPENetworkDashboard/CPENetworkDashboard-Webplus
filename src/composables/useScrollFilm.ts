@@ -1,5 +1,12 @@
 import { onMounted, onUnmounted, ref, type Ref } from 'vue'
 
+const readingMode = [
+  '(prefers-reduced-motion: reduce)',
+  '(max-height: 350px)',
+  '(max-width: 559px) and (max-height: 530px)',
+  '(max-width: 640px) and (max-height: 380px)',
+].join(', ')
+
 /** One take per chapter. Scroll selects the shot, which plays to its end and holds there. */
 export function useScrollFilm(
   track: Ref<HTMLElement | null>,
@@ -7,11 +14,9 @@ export function useScrollFilm(
   count: number
 ) {
   const active = ref(0),
-    progress = ref(0)
-  const media =
-    typeof window === 'undefined'
-      ? undefined
-      : window.matchMedia('(prefers-reduced-motion: reduce), (max-height: 300px)')
+    progress = ref(0),
+    travel = ref(0)
+  const media = typeof window === 'undefined' ? undefined : window.matchMedia(readingMode)
   const reduced = ref(media?.matches ?? false)
   const duration = 3200
   let observer: IntersectionObserver | undefined, resize: ResizeObserver | undefined
@@ -20,6 +25,7 @@ export function useScrollFilm(
     frame = 0
   let take = 0,
     previous = 0
+  const finished = new Set<number>()
 
   function measure() {
     const root = track.value,
@@ -36,10 +42,11 @@ export function useScrollFilm(
         : 0
     const chapter = Math.min(count - 1, Math.floor(physical))
     const local = physical - chapter
-    // Returning to an earlier section gives it a fresh take. Fast scrolling can seek into a take.
+    travel.value = local
+    // Completed chapters stay assembled when revisited. A quick swipe can still seek into a new take.
     if (chapter !== active.value) {
       active.value = chapter
-      take = 0
+      take = finished.has(chapter) ? 1 : 0
       previous = 0
     }
     take = Math.min(1, Math.max(take, local * 1.12))
@@ -54,7 +61,10 @@ export function useScrollFilm(
     progress.value = take
     dirty = false
     if (take < 1) frame = requestAnimationFrame(play)
-    else previous = 0
+    else {
+      finished.add(active.value)
+      previous = 0
+    }
   }
   function requestPaint() {
     dirty = true
@@ -104,5 +114,5 @@ export function useScrollFilm(
     window.removeEventListener('resize', requestPaint)
     document.removeEventListener('visibilitychange', visibility)
   })
-  return { active, progress, reduced }
+  return { active, progress, travel, reduced }
 }

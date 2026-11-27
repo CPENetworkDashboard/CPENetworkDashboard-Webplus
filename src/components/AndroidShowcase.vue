@@ -4,6 +4,7 @@ import { RouterLink } from 'vue-router'
 import { useScrollFilm } from '@/composables/useScrollFilm'
 import { chapters as allChapters } from './story/film'
 import FilmArtwork from './story/FilmArtwork.vue'
+import { span } from './story/quality'
 import SiteIcon from './SiteIcon.vue'
 import '@/styles/scroll-film.css'
 const props = defineProps<{ home?: boolean }>()
@@ -16,9 +17,14 @@ const desktopIndex = chapters.findIndex((chapter) => chapter.platform === 'macOS
 const introduction = '查看 4G / 5G 信号、锁频和测速，适用于 Android、macOS 和 Windows。'
 const track = ref<HTMLElement | null>(null)
 const stage = ref<HTMLElement | null>(null)
-const { active, progress, reduced } = useScrollFilm(track, stage, chapters.length)
+const { active, progress, travel, reduced } = useScrollFilm(track, stage, chapters.length)
 const shot = computed(() => chapters[active.value]!)
 const platform = computed(() => (shot.value.platform === 'Android' ? 'android' : 'desktop'))
+const cameraTravel = computed(() => {
+  if (active.value === chapters.length - 1) return 0
+  const edge = span(travel.value, 0.78, 1)
+  return edge * edge * (3 - 2 * edge)
+})
 function platformAnchor(index: number) {
   if (index === 0) return 'mobile'
   if (index === desktopIndex) return 'desktop'
@@ -66,8 +72,17 @@ function platformAnchor(index: number) {
           </div>
           <figure class="film-figure" :aria-label="shot.caption + '，示例数据'">
             <div class="film-visual" aria-hidden="true">
-              <div :key="platform" class="film-art">
-                <FilmArtwork :scene="shot.scene" :progress />
+              <div class="film-frame">
+                <Transition name="film-cut">
+                  <div
+                    :key="shot.scene"
+                    class="film-art"
+                    :data-scene="shot.scene"
+                    :style="{ '--camera-travel': cameraTravel }"
+                  >
+                    <FilmArtwork :scene="shot.scene" :progress />
+                  </div>
+                </Transition>
               </div>
             </div>
             <figcaption>
