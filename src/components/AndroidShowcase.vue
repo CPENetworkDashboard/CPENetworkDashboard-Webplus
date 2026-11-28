@@ -13,7 +13,7 @@ const features = chapters.filter(
   ({ scene }) => scene !== 'connect' && (!props.home || highlights.has(scene))
 )
 const root = ref<HTMLElement | null>(null)
-const { progress, travel, reduced } = useShowcaseMotion(root)
+const { progress, reduced } = useShowcaseMotion(root)
 const opening = chapters[0]
 const wide = new Set<SceneId>(['links', 'speed', 'desktop-connect'])
 </script>
@@ -49,10 +49,10 @@ const wide = new Set<SceneId>(['links', 'speed', 'desktop-connect'])
           :data-held="progress('connect') === 1"
           :aria-label="opening.caption + '，示例数据'"
         >
-          <div class="showcase-hero-art" :style="{ '--camera-travel': travel }" aria-hidden="true">
+          <div class="showcase-hero-art" aria-hidden="true">
             <FilmArtwork scene="connect" :progress="progress('connect')" />
           </div>
-          <figcaption><span>Android · 连接看板</span><span>示例数据</span></figcaption>
+          <figcaption>Android 连接看板 <span>· 示例数据</span></figcaption>
         </figure>
       </div>
     </header>
@@ -93,13 +93,14 @@ const wide = new Set<SceneId>(['links', 'speed', 'desktop-connect'])
           :data-held="progress(item.scene) === 1"
           :aria-label="item.caption + '，示例数据'"
         >
-          <div class="showcase-art" aria-hidden="true">
+          <div
+            class="showcase-art"
+            :class="{ 'showcase-art-content': item.platform === 'Android' }"
+            aria-hidden="true"
+          >
             <FilmArtwork :scene="item.scene" :progress="progress(item.scene)" />
           </div>
-          <figcaption>
-            <span>{{ item.caption }}</span
-            ><span>示例数据</span>
-          </figcaption>
+          <figcaption>{{ item.caption }} <span>· 示例数据</span></figcaption>
         </figure>
       </article>
     </div>

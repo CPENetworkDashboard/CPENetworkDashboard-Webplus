@@ -173,6 +173,31 @@ describe('product presentation', () => {
     }
   })
 
+  it('draws both speed traces without shifting their axes or rebuilding their curves', async () => {
+    const speed = render().get('[data-preview=speed]')
+    const scale = speed.findAll('.pm-speed-axis').map((axis) => axis.text())
+    const curves = speed.findAll('.speed-curve').map((curve) => curve.attributes('d'))
+    const paths = speed.findAll('clipPath').map((path) => path.attributes('id'))
+    const widths = () => speed.findAll('defs rect').map((rect) => Number(rect.attributes('width')))
+    expect(new Set(paths).size).toBe(2)
+    expect(widths()).toEqual([0, 0])
+
+    visibility(speed.element, 0.8)
+    await tick(28)
+    const mid = widths()
+    expect(mid).toHaveLength(2)
+    expect(mid.every((width) => width > 5 && width < 295)).toBe(true)
+    expect(speed.findAll('.pm-speed-axis').map((axis) => axis.text())).toEqual(scale)
+    expect(speed.findAll('.speed-curve').map((curve) => curve.attributes('d'))).toEqual(curves)
+
+    await tick(48)
+    expect(widths()).toEqual([300, 300])
+    expect(speed.findAll('.pm-speed-headline strong').map((rate) => rate.text())).toEqual([
+      '508',
+      '84.2',
+    ])
+  })
+
   it('keeps deep links and every finished example readable with reduced motion', async () => {
     const page = render()
     visibility(page.get('[data-preview=connect]').element, 1)

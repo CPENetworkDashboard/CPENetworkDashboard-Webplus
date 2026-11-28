@@ -51,7 +51,7 @@
 .reel-panel-head small {
   margin-inline-start: auto;
   color: var(--desk-muted);
-  font-size: clamp(10px, 2cqw, 12px);
+  font-size: 0.8125rem;
 }
 .reel-lights {
   display: flex;
@@ -169,7 +169,7 @@
 .reel-record > small,
 .reel-strip {
   color: var(--desk-muted);
-  font-size: clamp(11px, 2.15cqw, 14px);
+  font-size: clamp(0.8125rem, 2.15cqw, 0.9375rem);
 }
 .reel-number {
   color: var(--desk-blue);
@@ -180,7 +180,7 @@
 }
 .reel-number small,
 .reel-label b small {
-  font-size: 0.4em;
+  font-size: max(0.75rem, 0.4em);
   font-weight: 500;
 }
 .reel-meter {
@@ -202,7 +202,7 @@
 }
 .reel-reading small {
   color: var(--desk-muted);
-  font-size: 0.6em;
+  font-size: max(0.75rem, 0.6em);
 }
 .reel-strip {
   display: flex;
@@ -321,6 +321,7 @@
   .reel-sidebar span span,
   .reel-connected > span,
   .reel-sidebar > small,
+  .reel-titlebar small,
   .reel-label > small {
     display: none;
   }

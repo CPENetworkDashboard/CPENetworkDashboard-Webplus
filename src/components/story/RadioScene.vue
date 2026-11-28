@@ -13,7 +13,20 @@ const props = defineProps<{
   panels?: boolean
 }>()
 
-const aggregationFields = ['Type', 'Band', 'ARFCN', 'PCI', 'BW', 'RSRP', 'RSRQ', 'SINR']
+const aggregation = carriers.map((item, index) => ({
+  role: index ? '辅载波' : '主载波',
+  band: item.values[0],
+  fields: [
+    { label: 'ARFCN', value: item.values[1], quality: null },
+    { label: 'PCI', value: item.values[2], quality: null },
+    { label: '带宽', value: item.values[5], quality: null },
+    ...['RSRP', 'RSRQ', 'SINR'].map((label, i) => ({
+      label,
+      value: item.rf[i],
+      quality: level(label, item.rf[i]!),
+    })),
+  ],
+}))
 const carrier = computed(() => carriers[props.progress < 0.55 ? 0 : 1])
 const currentCell = computed(() =>
   cellFacts
@@ -114,43 +127,25 @@ const readingFocus = computed(
             <h3>载波聚合</h3>
             <span>{{ carriers.length }}CC</span>
           </div>
-          <SiteIcon name="chevron" :size="14" />
         </header>
-        <table class="rs-ca-table">
-          <colgroup>
-            <col span="2" />
-            <col class="rs-ca-frequency" />
-            <col span="5" />
-            <col class="rs-ca-check" />
-          </colgroup>
-          <thead>
-            <tr>
-              <th v-for="label in aggregationFields" :key="label" scope="col">{{ label }}</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr
-              v-for="(item, index) in carriers"
-              :key="item.label"
-              :data-current="index === (progress < 0.5 ? 0 : 1)"
-            >
-              <td>{{ item.type }}</td>
-              <td>{{ item.values[0] }}</td>
-              <td>{{ item.values[1] }}</td>
-              <td>{{ item.values[2] }}</td>
-              <td>{{ item.values[5]?.split(' ')[0] }}</td>
-              <td
-                v-for="(value, metricIndex) in item.rf.slice(0, 3)"
-                :key="metricIndex"
-                :data-quality="level(finalRadio[metricIndex]!.label, value)"
-              >
-                {{ value }}
-              </td>
-              <td><SiteIcon name="check" :size="12" /></td>
-            </tr>
-          </tbody>
-        </table>
+        <div class="rs-carrier-overview">
+          <article
+            v-for="(item, index) in aggregation"
+            :key="item.role"
+            :data-current="index === (progress < 0.5 ? 0 : 1)"
+          >
+            <header>
+              <strong>{{ item.role }}</strong
+              ><span>{{ item.band }}</span>
+            </header>
+            <dl>
+              <div v-for="field in item.fields" :key="field.label" :data-quality="field.quality">
+                <dt>{{ field.label }}</dt>
+                <dd>{{ field.value }}</dd>
+              </div>
+            </dl>
+          </article>
+        </div>
       </section>
       <section class="android-card rs-power">
         <header class="android-card-heading"><h3>当前功率（NR PCC）</h3></header>
@@ -196,7 +191,21 @@ const readingFocus = computed(
             :key="cell.pci"
             :data-current="index === currentNeighbor"
           >
-            <div>
+            <dl v-if="panels" class="rs-neighbor-reading">
+              <div>
+                <dt>PCI</dt>
+                <dd>{{ cell.pci }}/{{ Number(cell.pci) % 3 }}</dd>
+              </div>
+              <div>
+                <dt>RSRP</dt>
+                <dd :data-quality="level('RSRP', Number(cell.rsrp))">{{ cell.rsrp }}</dd>
+              </div>
+              <div>
+                <dt>RSRQ</dt>
+                <dd :data-quality="level('RSRQ', Number(cell.rsrq))">{{ cell.rsrq }}</dd>
+              </div>
+            </dl>
+            <div v-if="!panels">
               <strong>{{ cell.band }}</strong
               ><span
                 >ARFCN <b>{{ cell.arfcn }}</b></span
@@ -204,7 +213,7 @@ const readingFocus = computed(
                 >PCI <b>{{ cell.pci }}/{{ Number(cell.pci) % 3 }}</b></span
               ><b class="rs-overflow">···</b>
             </div>
-            <div>
+            <div v-if="!panels">
               <span
                 >RSRP <b :data-quality="level('RSRP', Number(cell.rsrp))">{{ cell.rsrp }}</b></span
               ><span

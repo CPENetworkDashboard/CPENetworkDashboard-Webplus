@@ -11,7 +11,8 @@ export function formatSpeedNumber(value: number): string {
 </script>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, useId } from 'vue'
+import { clamp } from './quality'
 import '@/styles/android-speed.css'
 
 const props = withDefaults(
@@ -25,11 +26,18 @@ const props = withDefaults(
     samples: readonly number[]
     unit?: 'Mbps' | 'MB/s'
     reveal?: number
+    traceProgress?: number | null
   }>(),
-  { reveal: 1, unit: 'Mbps' }
+  { reveal: 1, unit: 'Mbps', traceProgress: null }
 )
 
 const title = computed(() => (props.direction === 'down' ? '下载' : '上传'))
+const story = computed(() => props.traceProgress !== null)
+const clipId = useId()
+const clipWidth = computed(() => {
+  const progress = clamp(props.traceProgress ?? 1)
+  return progress === 1 ? 300 : progress === 0 ? 0 : 5 + 290 * progress
+})
 // The story passes continuous progress. Only rebuild the plot when a whole sample changes.
 const end = computed(() =>
   Math.floor(props.samples.length * Math.min(1, Math.max(0, props.reveal)))
@@ -71,7 +79,7 @@ const axis = (value: number) => {
       <i aria-hidden="true">{{ direction === 'down' ? '↓' : '↑' }}</i>
       <div>
         <b>{{ title }}</b
-        ><span>实时速率</span>
+        ><span v-if="!story">实时速率</span>
       </div>
     </header>
     <p class="pm-speed-headline">
@@ -89,17 +97,24 @@ const axis = (value: number) => {
       </div>
       <div class="pm-speed-plot">
         <svg viewBox="0 0 300 100" preserveAspectRatio="none" aria-hidden="true">
+          <defs v-if="story">
+            <clipPath :id="clipId"><rect :width="clipWidth" height="100" /></clipPath>
+          </defs>
           <path class="grid" d="M0 8H300M0 50H300M0 92H300" />
-          <path v-if="latest" class="guide" :d="'M0 ' + latest.y + 'H300'" />
-          <line v-for="p in points" :key="p.x" :x1="p.x" :x2="p.x" :y1="p.y" y2="92" />
-          <path v-if="points.length > 1" class="speed-curve" :d="curve" />
-          <circle v-for="p in points" :key="p.x" :cx="p.x" :cy="p.y" r="2.2" />
+          <g v-memo="[points, story]" :clip-path="story ? 'url(#' + clipId + ')' : undefined">
+            <path v-if="latest && !story" class="guide" :d="'M0 ' + latest.y + 'H300'" />
+            <line v-for="p in points" :key="p.x" :x1="p.x" :x2="p.x" :y1="p.y" y2="92" />
+            <path v-if="points.length > 1" class="speed-curve" :d="curve" />
+            <template v-for="(p, index) in points" :key="p.x">
+              <circle v-if="!story || index === points.length - 1" :cx="p.x" :cy="p.y" r="2.2" />
+            </template>
+          </g>
         </svg>
         <span v-if="!latest">等待速率数据</span>
       </div>
     </div>
     <div class="pm-speed-times" aria-hidden="true">
-      <span>−30 秒</span><span>−15 秒</span><span>现在</span>
+      <span>−30 秒</span><span v-if="!story">−15 秒</span><span>现在</span>
     </div>
     <dl>
       <div>

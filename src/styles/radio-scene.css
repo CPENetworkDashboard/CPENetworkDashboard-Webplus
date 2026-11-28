@@ -495,45 +495,6 @@
   align-items: center;
   color: var(--android-muted);
 }
-.rs-ca .android-card-heading svg {
-  rotate: 180deg;
-}
-.rs-ca-table {
-  flex: 1;
-  width: 100%;
-  table-layout: fixed;
-  color: var(--android-muted);
-  font-size: clamp(7px, 2.8cqw, 11px);
-  line-height: 1.2;
-  text-align: center;
-  white-space: nowrap;
-}
-.rs-ca-frequency {
-  width: 16%;
-}
-.rs-ca-check {
-  width: 6%;
-}
-.rs-ca-table tr {
-  border-bottom: 1px solid var(--android-outline);
-}
-.rs-ca-table tbody tr:last-child {
-  border-bottom: 0;
-}
-.rs-ca-table :is(th, td) {
-  padding: 2px 1px;
-}
-.rs-ca-table td {
-  color: var(--reading-color, var(--android-text));
-}
-.rs-ca-table svg {
-  width: min(11px, 1em);
-  color: var(--android-strong);
-  margin-inline: auto;
-}
-.rs-ca-table tr[data-current='true'] {
-  background: #a8c8f00c;
-}
 .rs-power .rs-metrics {
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
@@ -634,7 +595,7 @@
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .film-art :is(.rs-cell, .rs-rf) dd {
+  .showcase-hero-art :is(.rs-cell, .rs-rf) dd {
     animation: reading-change 200ms ease-out both;
   }
   @keyframes reading-change {

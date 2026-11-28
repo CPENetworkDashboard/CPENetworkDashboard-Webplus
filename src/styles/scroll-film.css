@@ -133,7 +133,7 @@
   gap: 9px;
   margin: 17px 0 0;
   color: var(--story-muted);
-  font-size: 0.8125rem;
+  font-size: var(--site-meta-size);
 }
 .showcase-platforms i {
   height: 3px;
@@ -154,17 +154,10 @@
   height: clamp(478px, 69svh, 633px);
 }
 .showcase-preview figcaption {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 8px 15px;
   margin-top: 9px;
   color: var(--story-muted);
-  font-size: 0.8125rem;
-  line-height: 1.35;
-}
-.showcase-preview figcaption > span:last-child {
-  flex: none;
+  font-size: var(--site-meta-size);
+  line-height: 1.5;
 }
 .showcase-preview-hero figcaption {
   width: 88%;
@@ -236,21 +229,22 @@
   background: var(--art-background, var(--story-panel));
   overflow: clip;
 }
+.showcase-art.showcase-art-content {
+  min-height: 0;
+  height: auto;
+  padding-block: clamp(19px, 3.45vw, 48px);
+}
 .showcase-chapter[data-chapter='lock'] .showcase-art {
   --art-background: color-mix(in srgb, var(--story-panel) 67%, var(--story-light));
-  --art-height: 392px;
 }
 .showcase-chapter[data-chapter='speed'] .showcase-art {
   --art-background: color-mix(in srgb, var(--story-panel) 73%, var(--story-light));
-  --art-height: clamp(345px, 34vw, 454px);
 }
 .showcase-chapter[data-chapter='neighbors'] .showcase-art {
-  --art-height: 316px;
   --art-background: color-mix(in srgb, var(--story-panel) 86%, var(--story-card));
 }
 .showcase-chapter[data-chapter='wifi'] .showcase-art {
   --art-background: color-mix(in srgb, var(--story-panel) 93%, #7ac9bd);
-  --art-height: 488px;
 }
 .showcase-chapter[data-chapter^='desktop-'] .showcase-art {
   --art-background: linear-gradient(151deg, var(--story-panel), var(--story-light));
@@ -266,6 +260,15 @@
 @media (prefers-reduced-motion: no-preference) {
   .showcase[data-reduced='false'] .showcase-art > * {
     transform: translateY(calc(var(--arrival, 0) * 14px)) scale(calc(1 - 0.012 * var(--arrival, 0)));
+  }
+  .showcase-download {
+    transition:
+      background-color 180ms ease,
+      border-color 180ms ease,
+      translate 180ms ease;
+  }
+  .showcase-download:hover {
+    translate: 0 -1px;
   }
 }
 
@@ -298,7 +301,6 @@
   }
   .showcase-kicker {
     margin-bottom: 8px;
-    font-size: 0.8125rem;
   }
   .showcase h1 {
     font-size: clamp(2.25rem, 9.1vw, 3.35rem);
@@ -336,15 +338,6 @@
   .showcase-art {
     border-radius: 15px;
   }
-  .showcase-chapter[data-chapter='speed'] .showcase-art {
-    --art-height: clamp(522px, 130vw, 575px);
-  }
-  .showcase-chapter[data-chapter='neighbors'] .showcase-art {
-    --art-height: 346px;
-  }
-  .showcase-chapter[data-chapter='wifi'] .showcase-art {
-    --art-height: 445px;
-  }
 }
 @media (max-width: 370px) {
   .showcase-hero {
@@ -355,9 +348,6 @@
   }
   .showcase-hero-art {
     height: 310px;
-  }
-  .showcase-chapter[data-chapter='lock'] .showcase-art {
-    --art-height: 452px;
   }
   .showcase-platforms {
     display: none;

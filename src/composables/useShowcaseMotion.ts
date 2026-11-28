@@ -9,11 +9,11 @@ export function useShowcaseMotion(root: Ref<HTMLElement | null>) {
   const supportsVisibility = typeof IntersectionObserver !== 'undefined'
   const reduced = ref(!supportsVisibility || (preference?.matches ?? true))
   const shots = reactive<Partial<Record<SceneId, number>>>({})
-  const travel = ref(0)
   const playing = new Set<SceneId>()
   const inView = new Set<HTMLElement>()
   let observer: IntersectionObserver | undefined
   let hero: HTMLElement | null = null
+  let heroArt: HTMLElement | null = null
   let heroVisible = false
   let measure = true
   let previous: number | undefined
@@ -27,6 +27,12 @@ export function useShowcaseMotion(root: Ref<HTMLElement | null>) {
     if (!frame && !reduced.value && !document.hidden) frame = requestAnimationFrame(paint)
   }
 
+  function setProgress(element: HTMLElement, property: string, amount: number) {
+    const value = amount.toFixed(3)
+    if (element.style.getPropertyValue(property) !== value)
+      element.style.setProperty(property, value)
+  }
+
   function paint(timestamp: number) {
     frame = 0
     if (measure) {
@@ -35,12 +41,16 @@ export function useShowcaseMotion(root: Ref<HTMLElement | null>) {
         preview,
         arrival: span(preview.getBoundingClientRect().top / height, 0.47, 0.97),
       }))
-      if (heroVisible && hero) {
+      if (heroVisible && hero && heroArt) {
         const rect = hero.getBoundingClientRect()
-        travel.value = span(-rect.top / Math.min(rect.height, height), 0.06, 0.88)
+        setProgress(
+          heroArt,
+          '--camera-travel',
+          span(-rect.top / Math.min(rect.height, height), 0.06, 0.88)
+        )
       }
       for (const { preview, arrival } of arrivals) {
-        preview.style.setProperty('--arrival', arrival.toFixed(3))
+        setProgress(preview, '--arrival', arrival * arrival * (3 - 2 * arrival))
       }
     }
     measure = false
@@ -69,8 +79,9 @@ export function useShowcaseMotion(root: Ref<HTMLElement | null>) {
 
   function observe() {
     if (!root.value || reduced.value) return
-    observer = new IntersectionObserver(
+    const current = new IntersectionObserver(
       (entries) => {
+        if (observer !== current || reduced.value) return
         for (const entry of entries) {
           if (entry.target === hero) {
             heroVisible = entry.isIntersecting
@@ -96,18 +107,20 @@ export function useShowcaseMotion(root: Ref<HTMLElement | null>) {
       },
       { threshold: [0, 0.24] }
     )
-    if (hero) observer.observe(hero)
-    for (const figure of root.value.querySelectorAll('[data-preview]')) observer.observe(figure)
+    observer = current
+    if (hero) current.observe(hero)
+    for (const figure of root.value.querySelectorAll('[data-preview]')) current.observe(figure)
   }
 
   function motionChanged() {
     reduced.value = !supportsVisibility || (preference?.matches ?? true)
     suspend()
     observer?.disconnect()
+    observer = undefined
     playing.clear()
     inView.clear()
     heroVisible = false
-    travel.value = 0
+    heroArt?.style.removeProperty('--camera-travel')
     if (!reduced.value) observe()
   }
 
@@ -121,6 +134,7 @@ export function useShowcaseMotion(root: Ref<HTMLElement | null>) {
 
   onMounted(() => {
     hero = root.value?.querySelector('.showcase-hero') ?? null
+    heroArt = hero?.querySelector('.showcase-hero-art') ?? null
     preference?.addEventListener('change', motionChanged)
     window.addEventListener('scroll', onScroll, { passive: true })
     window.addEventListener('resize', onScroll, { passive: true })
@@ -131,11 +145,12 @@ export function useShowcaseMotion(root: Ref<HTMLElement | null>) {
   onUnmounted(() => {
     suspend()
     observer?.disconnect()
+    observer = undefined
     preference?.removeEventListener('change', motionChanged)
     window.removeEventListener('scroll', onScroll)
     window.removeEventListener('resize', onScroll)
     document.removeEventListener('visibilitychange', visibilityChanged)
   })
 
-  return { progress, travel, reduced }
+  return { progress, reduced }
 }

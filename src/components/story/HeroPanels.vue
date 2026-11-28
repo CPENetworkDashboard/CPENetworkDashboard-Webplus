@@ -14,56 +14,51 @@ const strength = computed(() => level('RSRP', carrier.value.rf[0]!)!)
     <section class="hero-panel hero-network" data-panel="operator">
       <span class="hero-panel-icon"><SiteIcon name="signal" :size="18" /></span>
       <div>
-        <small>连接概览</small>
-        <h3>中国移动 <span>5G SA</span></h3>
+        <h3>中国移动</h3>
+        <p class="hero-network-mode">5G SA</p>
       </div>
       <span class="hero-online"></span>
     </section>
     <section class="hero-panel hero-rf" data-panel="radio">
       <header>
         <h3>射频质量</h3>
-        <span>{{ carrier.label }}</span>
+        <span>{{ words[strength] }}</span>
       </header>
       <div class="hero-reading">
         <b>{{ carrier.rf[0] }}</b
         ><span>dBm</span>
       </div>
       <div class="hero-reading-scale">
-        <span>SS-RSRP</span><span>{{ words[strength] }}</span>
+        <span>RSRP</span>
         <i :style="{ '--fill': score[strength] }"></i>
       </div>
       <dl class="hero-metrics">
         <div>
-          <dt>SS-RSRQ</dt>
-          <dd>{{ carrier.rf[1] }} <span>dB</span></dd>
+          <dt>RSRQ</dt>
+          <dd>{{ carrier.rf[1] }}<span> dB</span></dd>
         </div>
         <div>
-          <dt>SS-SINR</dt>
-          <dd>{{ carrier.rf[2] }} <span>dB</span></dd>
+          <dt>SINR</dt>
+          <dd>{{ carrier.rf[2] }}<span> dB</span></dd>
         </div>
       </dl>
     </section>
     <section class="hero-panel hero-cell" data-panel="cell">
       <header>
         <h3>当前小区</h3>
-        <span>{{ carrier.label }}</span>
       </header>
+      <div class="hero-cell-band">
+        <b>{{ carrier.values[0] }}</b
+        ><span>{{ carrier.values[5] }}</span>
+      </div>
       <dl class="hero-metrics">
         <div>
-          <dt>频段</dt>
-          <dd>{{ carrier.values[0] }}</dd>
+          <dt>ARFCN</dt>
+          <dd>{{ carrier.values[1] }}</dd>
         </div>
         <div>
           <dt>PCI</dt>
           <dd>{{ carrier.values[2] }}</dd>
-        </div>
-        <div>
-          <dt>SSB-ARFCN</dt>
-          <dd>{{ carrier.values[1] }}</dd>
-        </div>
-        <div>
-          <dt>带宽</dt>
-          <dd>{{ carrier.values[5] }}</dd>
         </div>
       </dl>
     </section>

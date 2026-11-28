@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import { sessionTraffic, speedDuration, speedFrame } from '@/data/speedTrace'
 import { bands, plotWidth, signalY, wifiPlot } from '@/data/wifiSpectrum'
 import SpeedRealtimeCard, { formatSpeedNumber, SPEED_CHART_SECONDS } from './SpeedRealtimeCard.vue'
+import { span } from './quality'
 import '@/styles/spectrum-scene.css'
 
 const props = defineProps<{ scene: 'speed' | 'wifi'; progress: number }>()
@@ -10,30 +11,34 @@ const position = computed(() =>
   Number.isFinite(props.progress) ? Math.max(0, Math.min(1, props.progress)) : 0
 )
 
-// Draw the closing 30 seconds. The first dot already has the history of the full session behind it.
-const samplesShown = computed(() =>
-  Math.min(SPEED_CHART_SECONDS, 1 + Math.floor(position.value * SPEED_CHART_SECONDS))
-)
-const second = computed(() => speedDuration - SPEED_CHART_SECONDS + samplesShown.value)
+// Reveal the final 30-second window in place; neither time nor amplitude axes jump during playback.
+const frame = speedFrame(speedDuration, SPEED_CHART_SECONDS)
+const trace = computed(() => {
+  const t = span(position.value, 0.12, 0.96)
+  return t * t * (3 - 2 * t)
+})
+const sample = computed(() => Math.floor(trace.value * (SPEED_CHART_SECONDS - 1)))
 const cards = computed(() =>
-  speedFrame(second.value, samplesShown.value).map((card) => ({
+  frame.map((card) => ({
     ...card,
-    rate: formatSpeedNumber(card.rate),
+    rate: formatSpeedNumber(card.samples[sample.value] ?? card.rate),
     average: formatSpeedNumber(card.average) + ' Mbps',
     peak: formatSpeedNumber(card.peak) + ' Mbps',
   }))
 )
-const elapsed = computed(() => {
-  const minutes = Math.floor(second.value / 60)
-  return String(minutes).padStart(2, '0') + ':' + String(second.value % 60).padStart(2, '0')
-})
+const elapsed = [Math.floor(speedDuration / 60), speedDuration % 60]
+  .map((value) => String(value).padStart(2, '0'))
+  .join(':')
 
 const bandIndex = computed(() =>
   Math.min(bands.length - 1, Math.floor(position.value * bands.length))
 )
 const band = computed(() => bands[bandIndex.value]!)
 const plot = computed(() => wifiPlot(band.value))
-const sweep = computed(() => (position.value * bands.length - bandIndex.value) * 100 + '%')
+const sweep = computed(() => position.value * bands.length - bandIndex.value)
+const scanOpacity = computed(() =>
+  sweep.value > 0 && sweep.value < 1 ? Math.sin(sweep.value * Math.PI) : 0
+)
 const plotHeight = 124
 const levels = [-40, -60, -80] as const
 </script>
@@ -41,14 +46,16 @@ const levels = [-40, -60, -80] as const
 <template>
   <div class="spectrum-scene" :data-scene="scene">
     <div v-if="scene === 'speed'" class="sp-throughput" aria-label="最近 30 秒的双向测速示例">
-      <div class="sp-status">
-        <span><i></i>双向中</span>
-      </div>
-      <SpeedRealtimeCard v-for="card in cards" :key="card.direction" v-bind="card" />
+      <SpeedRealtimeCard
+        v-for="card in cards"
+        :key="card.direction"
+        v-bind="card"
+        :trace-progress="trace"
+      />
       <dl class="sp-session">
         <div>
           <dt>总流量</dt>
-          <dd>{{ sessionTraffic(second) }}</dd>
+          <dd>{{ sessionTraffic(speedDuration) }}</dd>
         </div>
         <div>
           <dt>用时</dt>
@@ -60,8 +67,12 @@ const levels = [-40, -60, -80] as const
         </div>
       </dl>
     </div>
-    <div v-else class="sp-wifi" :data-band="band" :style="{ '--sp-sweep': sweep }">
-      <div class="sp-view-mode"><span>SSID 列表</span><b>频道健康</b></div>
+    <div
+      v-else
+      class="sp-wifi"
+      :data-band="band"
+      :style="{ '--sp-sweep': sweep * 100 + '%', '--scan-opacity': scanOpacity }"
+    >
       <section v-memo="[band]" class="sp-plate sp-spectrum">
         <header class="sp-heading">
           <h3>信道占用</h3>

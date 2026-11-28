@@ -150,7 +150,7 @@
 .st-name p {
   margin: 2px 0 0;
   color: var(--muted);
-  font-size: 13px;
+  font-size: var(--site-meta-size);
 }
 .st-pill {
   display: inline-flex;
@@ -199,7 +199,7 @@
   align-items: baseline;
   margin-top: 8px;
   color: var(--muted);
-  font-size: 12px;
+  font-size: var(--site-meta-size);
 }
 .st-axis span:last-child {
   text-align: end;
@@ -218,7 +218,7 @@
 }
 .st-summary small {
   color: var(--muted);
-  font-size: 13px;
+  font-size: var(--site-meta-size);
 }
 .st-summary strong {
   display: block;
@@ -231,7 +231,7 @@
 .st-summary p {
   margin: 6px 0 0;
   color: var(--muted);
-  font-size: 13px;
+  font-size: var(--site-meta-size);
   line-height: 1.6;
 }
 .st-legend {
